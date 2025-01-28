@@ -1,7 +1,7 @@
 **Assignment 01**
 ====================
 
-Thisassignment implements a simple Node.js and Express API to perform a health check (`/healthz`). The API is designed to:
+This assignment implements a simple Node.js and Express API to perform a health check (`/healthz`). The API is designed to:
 
 -   Insert a record into a MySQL database (`health_check` table) with the current UTC datetime.
 -   Ensure proper error handling and status codes for various scenarios.
@@ -49,7 +49,7 @@ bash
 
 CopyEdit
 
-`npm install mysql2 sequelize express`
+`npm install express sequelize mysql2 dotenv`
 
 ### **\. Start the Application**
 
