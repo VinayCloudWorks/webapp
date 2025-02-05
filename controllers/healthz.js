@@ -27,7 +27,9 @@ exports.checkHealth = async (req, res) => {
         res.set('X-Content-Type-Options', 'nosniff');
         return res.status(200).send(); // No body
     } catch (error) {
-        console.error('Failed to insert HealthCheck record:', error);
+        if (process.env.NODE_ENV !== 'test') {
+            console.error('Failed to insert HealthCheck record:', error);
+        }
 
         // Return 503 Service Unavailable with no response body
         res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
