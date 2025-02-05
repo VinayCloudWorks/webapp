@@ -1,10 +1,11 @@
-**Assignment 01**
+**Assignment 02**
 ====================
 
-This assignment implements a simple Node.js and Express API to perform a health check (`/healthz`). The API is designed to:
-
--   Insert a record into a MySQL database (`health_check` table) with the current UTC datetime.
--   Ensure proper error handling and status codes for various scenarios.
+This assignment demonstrates how to:
+- Set up AWS Organizations and configure IAM policies and users.
+- Automate server setup on Ubuntu 24.04 LTS using a shell script.
+- Validate the health check API through an automated test suite.
+- Deploy the application on a DigitalOcean droplet.
 
 * * * * *
 
@@ -13,10 +14,11 @@ This assignment implements a simple Node.js and Express API to perform a health 
 
 ### **For Building and Running Locally**
 
-1.  **Node.js**: Version 14.x or higher
-2.  **MySQL**: Version 5.7 or higher
-3.  **Git**: Installed and configured
-4.  **Environment Variables**:
+- **Operating System:** Ubuntu 24.04 LTS (both locally and on the DigitalOcean droplet)
+- **Node.js:** v16.x or later
+- **MySQL:** Installed on the server
+- **DigitalOcean Droplet:** Running Ubuntu 24.04 LTS
+- **Git & SSH:** For repository management and server acces
     -   Create a `.env` file in the root directory with the following:
 
         env
@@ -34,44 +36,38 @@ This assignment implements a simple Node.js and Express API to perform a health 
 **Setup and Deployment**
 ------------------------
 
-### **1\. Clone the Repository**
+### **1\. Creating a Droplet on DigitalOcean**
+
+### **\. Uploading the Application.zip & Shell Script separately**
 
 bash
 
 CopyEdit
 
-`git clone https://github.com/VinaySathe-NEU/webapp.git
-cd <webapp>`
+`scp -i ~/.ssh/<SSH_KEY><Files_to_upload> root@<IP_address_Droplet>:/root/`
 
-### **\. Install Dependencies**
-
-bash
-
-CopyEdit
-
-`npm install express sequelize mysql2 dotenv`
-
-### **\. Start the Application**
+### **\. Opening the console from Terminal**
 
 bash
 
 CopyEdit
 
-`node server.js`
+`ssh -i ~/.ssh/<SSH_KEY> root@<IP_address_Droplet>`
 
 * * * * *
 
-**API Usage**
--------------
+### **\. Making the script executable**
 
-### **Endpoint: `/healthz`**
+bash
 
-1.  **GET /healthz**
+CopyEdit
 
-    -   Inserts a record into the database and returns:
-        -   `200 OK` if successful.
-        -   `503 Service Unavailable` if the database is down.
-2.  **Invalid Requests**
+`chmod +x <script_filename>.sh`
 
-    -   Payload in the request body → `400 Bad Request`
-    -   Unsupported HTTP methods → `405 Method Not Allowed`
+### **\. Running the script**
+
+bash
+
+CopyEdit
+
+`./<script_filename>.sh`
