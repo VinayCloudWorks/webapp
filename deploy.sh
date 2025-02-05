@@ -1,7 +1,10 @@
 #!/bin/bash
 
 echo "Updating package lists..."
-sudo apt-get update
+sudo apt-get -y update
+
+echo "Setting up non-interactive frontend for apt..."
+export DEBIAN_FRONTEND=noninteractive
 
 echo "Upgrading packages..."
 sudo apt-get -y upgrade
