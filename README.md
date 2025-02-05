@@ -46,7 +46,7 @@ CopyEdit
 
 `scp -i ~/.ssh/<SSH_KEY><Files_to_upload> root@<IP_address_Droplet>:/root/`
 
-### **\. Opening the console from Terminal**
+### **2\. Opening the console from Terminal**
 
 bash
 
@@ -56,7 +56,7 @@ CopyEdit
 
 * * * * *
 
-### **\. Making the script executable**
+### **3\. Making the script executable**
 
 bash
 
@@ -64,7 +64,7 @@ CopyEdit
 
 `chmod +x <script_filename>.sh`
 
-### **\. Running the script**
+### **4\. Running the script**
 
 bash
 
