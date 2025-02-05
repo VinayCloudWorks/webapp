@@ -3,8 +3,12 @@ const HealthCheck = require('../models/healthz');
 
 // Handle GET /healthz
 exports.checkHealth = async (req, res) => {
-    // Check if the request contains a payload
-    if (req.body && Object.keys(req.body).length > 0) {
+    // Check if the request contains a payload, query params, or route params
+    if (
+        (req.body && Object.keys(req.body).length > 0) ||
+        (req.query && Object.keys(req.query).length > 0) ||
+        (req.params && Object.keys(req.params).length > 0)
+    ) {
         res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
         res.set('Pragma', 'no-cache');
         res.set('X-Content-Type-Options', 'nosniff');
@@ -38,6 +42,5 @@ exports.methodNotAllowed = (req, res) => {
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.set('Pragma', 'no-cache');
     res.set('X-Content-Type-Options', 'nosniff');
-    return res.status(405).send(); // 405 Method Not Allowed with no body
+    return res.status(405).send(); // 405 Method Not Allowed
 };
-
