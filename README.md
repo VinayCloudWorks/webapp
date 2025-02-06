@@ -56,7 +56,15 @@ CopyEdit
 
 * * * * *
 
-### **3\. Making the script executable**
+### **3\. Run the source.env file**
+
+bash
+
+CopyEdit
+
+`source ~/source.env`
+
+### **4\. Making the script executable**
 
 bash
 
@@ -64,7 +72,7 @@ CopyEdit
 
 `chmod +x <script_filename>.sh`
 
-### **4\. Running the script**
+### **5\. Running the script**
 
 bash
 
