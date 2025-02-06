@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Check that required environment variables are set
+for var in DB_NAME DB_USER DB_PASS DB_HOST DB_DIALECT; do
+  if [ -z "${!var}" ]; then
+    echo "Error: $var is not set. Please source the source.env file before running this script."
+    exit 1
+  fi
+done
+
 echo "Updating package lists..."
 sudo apt-get -y update
 
@@ -17,9 +25,9 @@ sudo systemctl start mysql
 sudo systemctl enable mysql
 
 echo "Creating database and dedicated MySQL user..."
-sudo mysql -e "CREATE DATABASE cloud;"
-sudo mysql -e "CREATE USER 'clouduser'@'localhost' IDENTIFIED BY 'cloudpass';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON cloud.* TO 'clouduser'@'localhost';"
+sudo mysql -e "CREATE DATABASE ${DB_NAME};"
+sudo mysql -e "CREATE USER '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASS}';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';"
 sudo mysql -e "FLUSH PRIVILEGES;"
 
 echo "Creating Linux group..."
@@ -52,14 +60,21 @@ echo "Updating folder permissions..."
 sudo chown -R vinay:cloudg /opt/csye6225
 sudo chmod -R 775 /opt/csye6225
 
-echo "Creating .env file in the app root directory (as root/sudo user)..."
-cat > /opt/csye6225/webapp/.env <<EOF
-DB_NAME=cloud
-DB_USER=clouduser
-DB_PASS=cloudpass
-DB_HOST=localhost
-DB_DIALECT=mysql
-EOF
+echo "Copying provided environment file to the app directory..."
+if [ -f ~/source.env ]; then
+    sudo cp ~/source.env /opt/csye6225/webapp/.env
+else
+    echo "Error: source.env file not found in your home directory. Please ensure it was uploaded."
+    exit 1
+fi
+
+# Optional: Load the environment variables from the copied file.
+# This step is useful if you want to ensure that these variables are available in the shell
+# even if your Node.js app uses a package like dotenv to load them.
+echo "Loading environment variables from the copied file..."
+set -a
+source /opt/csye6225/webapp/.env
+set +a
 
 echo "Installing app dependencies (npm install)..."
 cd /opt/csye6225/webapp
