@@ -1,0 +1,60 @@
+name: Web App CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      # Wait until MySQL is healthy before proceeding
+      - name: Wait for MySQL
+        run: |
+          for i in {1..20}; do
+            if mysqladmin ping -h 127.0.0.1 --silent; then
+              echo "MySQL is ready!"
+              exit 0
+            fi
+            echo "Waiting for MySQL to be ready..."
+            sleep 3
+          done
+          echo "MySQL did not become ready in time"
+          exit 1
+
+      - name: Run Tests
+        env:
+          # These environment variables match what your utils.js expects.
+          DB_NAME: ${{ secrets.MYSQL_DATABASE }}
+          DB_USER: root
+          DB_PASS: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          DB_HOST: 127.0.0.1
+          DB_DIALECT: mysql
+        run: npm test
