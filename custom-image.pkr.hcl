@@ -34,7 +34,7 @@ variable "gcp_zone" {
 variable "aws_default_subnet_id" {
   description = "Subnet ID of your default VPC (must be from your DEV account's default VPC)"
   type        = string
-  default     = ""   # This should be set via a tfvars file (e.g., "subnet-xxxxxxx")
+  default     = "" # This should be set via a tfvars file (e.g., "subnet-xxxxxxx")
 }
 
 ####################
@@ -42,7 +42,7 @@ variable "aws_default_subnet_id" {
 ####################
 source "amazon-ebs" "ubuntu" {
   region = var.aws_region
-  
+
   source_ami_filter {
     filters = {
       name                = "ubuntu/images/hvm-ssd/ubuntu-24.04-amd64-server-*"
@@ -52,12 +52,12 @@ source "amazon-ebs" "ubuntu" {
     owners      = ["099720109477"]
     most_recent = true
   }
-  
+
   instance_type               = "t2.micro"
   ssh_username                = "ubuntu"
   ami_name                    = "custom-nodejs-app-{{timestamp}}"
   associate_public_ip_address = true
-  
+
   # Force the build to run in your default VPC by providing a subnet ID from that VPC
   subnet_id = var.aws_default_subnet_id != "" ? var.aws_default_subnet_id : null
 }
@@ -88,37 +88,37 @@ build {
       "# Update and upgrade the OS",
       "sudo apt-get update -y",
       "sudo apt-get upgrade -y",
-      
+
       "# Install MySQL server (or replace with MariaDB/PostgreSQL as needed)",
       "sudo apt-get install -y mysql-server",
-      
+
       "# Install Node.js and npm (using NodeSource for Node 18.x)",
       "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -",
       "sudo apt-get install -y nodejs",
-      
+
       "# Create a dedicated non-login user 'csye6225'",
       "sudo groupadd csye6225 || true",
       "sudo useradd -g csye6225 -s /usr/sbin/nologin csye6225 || true",
-      
+
       "# Create the application directory",
       "sudo mkdir -p /opt/csye6225",
-      
+
       "# Copy the application artifact from /tmp into /opt/csye6225",
       "sudo cp /tmp/app_artifact.zip /opt/csye6225/",
-      
+
       "# Unzip the artifact and remove the zip file",
       "sudo apt-get install -y unzip",
       "cd /opt/csye6225 && sudo unzip -o app_artifact.zip && sudo rm app_artifact.zip",
-      
+
       "# Install Node.js dependencies (assumes package.json exists in /opt/csye6225)",
       "cd /opt/csye6225 && sudo npm install --production",
-      
+
       "# Ensure all files are owned by user 'csye6225'",
       "sudo chown -R csye6225:csye6225 /opt/csye6225",
-      
+
       "# Copy the systemd service file from /tmp to /etc/systemd/system",
       "sudo cp /tmp/app.service /etc/systemd/system/app.service",
-      
+
       "# Reload systemd and enable the service to start on boot",
       "sudo systemctl daemon-reload",
       "sudo systemctl enable app.service"
