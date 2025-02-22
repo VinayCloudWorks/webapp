@@ -9,7 +9,7 @@ jobs:
   build-custom-image:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
 
       - name: Setup Build Environment
@@ -17,14 +17,24 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y unzip
 
-      - name: Build Application Artifact
-        run: |
-          # Run your build script that creates the artifact (e.g., app_artifact.zip)
-          ./build.sh
-          # The artifact should be placed at /tmp/app_artifact.zip for Packer to use
-
       - name: Run Integration Tests
-        run: ./run_integration_tests.sh
+        env:
+          DB_NAME: ${{ secrets.MYSQL_DATABASE }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          PORT: ${{ secrets.PORT }}
+        run: npm test
+
+      - name: Build Application Artifact
+        env:
+          PORT: ${{ secrets.PORT }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
+          DB_USER: ${{ secrets.DB_USER }}
+        run: ./build.sh
 
       - name: Install Packer
         run: |
@@ -32,11 +42,43 @@ jobs:
           unzip packer_1.8.5_linux_amd64.zip
           sudo mv packer /usr/local/bin/
 
+      - name: Install AWS CLI
+        run: sudo apt-get install -y awscli
+
+      - name: Install GCP CLI SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: "latest"
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
       - name: Run Packer Build
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-        run: packer build custom-image.pkr.hcl
+        run: |
+          packer build \
+            -var "aws_region=${{ secrets.AWS_REGION }}" \
+            -var "aws_default_subnet_id=${{ secrets.AWS_DEFAULT_SUBNET_ID }}" \
+            -var "gcp_zone=${{ secrets.GCP_ZONE }}" \
+            -var "gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            packer/custom-image.pkr.hcl
+
+      - name: Retrieve Latest AMI ID and Share with Demo Account
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_DEMO_ACCOUNT_ID: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
+        run: |
+          echo "Retrieving latest AMI ID..."
+          AMI_ID=$(aws ec2 describe-images \
+            --executable-users self \
+            --filters "Name=name,Values=custom-nodejs-app-*" \
+            --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
+            --output text)
+          echo "Latest AMI ID: $AMI_ID"
+          echo "Sharing AMI with Demo Account..."
+          aws ec2 modify-image-attribute --image-id "$AMI_ID" \
+            --launch-permission "Add=[{UserId=${AWS_DEMO_ACCOUNT_ID}}]"
