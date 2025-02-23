@@ -80,6 +80,9 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
+      - name: "Debug: List Files"
+        run: ls -R
+
       - name: Initialize Packer Template
         run: packer init ./packer/custom-image.pkr.hcl
 
