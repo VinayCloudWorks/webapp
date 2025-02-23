@@ -58,7 +58,7 @@ jobs:
           ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
-        run: ./build.sh
+        run: ./scripts/build.sh
 
       - name: Install Packer
         run: |
