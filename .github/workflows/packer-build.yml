@@ -43,7 +43,7 @@ jobs:
         env:
           DB_NAME: ${{ secrets.MYSQL_DATABASE }}
           DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          DB_PASS: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           DB_HOST: ${{ secrets.DB_HOST }}
           PORT: ${{ secrets.PORT }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
@@ -54,7 +54,7 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_HOST: 127.0.0.1
           ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
