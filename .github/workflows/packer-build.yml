@@ -8,6 +8,22 @@ on:
 jobs:
   build-custom-image:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.DB_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -43,6 +59,7 @@ jobs:
           DB_HOST: ${{ secrets.DB_HOST }}
           ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
           DB_USER: ${{ secrets.DB_USER }}
+          DB_DIALECT: ${{ secrets.DB_DIALECT }}
         run: ./build.sh
 
       - name: Install Packer
