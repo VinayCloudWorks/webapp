@@ -1,0 +1,33 @@
+name: Packer Status Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  packer-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Packer Plugins
+        run: packer init packer/custom-image.pkr.hcl
+
+      - name: Run Packer Format Check
+        run: packer fmt -check packer/custom-image.pkr.hcl
+
+      - name: Run Packer Validate
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_DEFAULT_SUBNET_ID: ${{ secrets.AWS_DEFAULT_SUBNET_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: |
+          packer validate \
+            -var "aws_region=${AWS_REGION}" \
+            -var "aws_default_subnet_id=${AWS_DEFAULT_SUBNET_ID}" \
+            -var "gcp_zone=${GCP_ZONE}" \
+            -var "gcp_project_id=${GCP_PROJECT_ID}" \
+            packer/custom-image.pkr.hcl

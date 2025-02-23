@@ -29,11 +29,11 @@
 
         CopyEdit
 
-        `DB_HOST=localhost
-        DB_USER=root
-        DB_PASS=yourpassword
-        DB_NAME=webappdb
-        PORT=3000`
+        `DB_HOST=
+        DB_USER=
+        DB_PASS=
+        DB_NAME=
+        PORT=`
 
 * * * * *
 
