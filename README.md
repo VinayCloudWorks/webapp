@@ -84,4 +84,4 @@ CopyEdit
 
 `./<script_filename>.sh`
 
-Test 6
+Test 7
