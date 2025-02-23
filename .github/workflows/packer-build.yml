@@ -32,6 +32,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           DB_HOST: ${{ secrets.DB_HOST }}
           PORT: ${{ secrets.PORT }}
+          DB_DIALECT: ${{ secrets.DB_DIALECT }}
         run: npm test
 
       - name: Build Application Artifact
