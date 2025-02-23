@@ -91,7 +91,7 @@ jobs:
             -var "aws_default_subnet_id=${{ secrets.AWS_DEFAULT_SUBNET_ID }}" \
             -var "gcp_zone=${{ secrets.GCP_ZONE }}" \
             -var "gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
-            packer/custom-image.pkr.hcl
+            ./packer/custom-image.pkr.hcl
 
       - name: Retrieve Latest AMI ID and Share with Demo Account
         env:
