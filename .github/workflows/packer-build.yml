@@ -28,10 +28,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Debug - Check Packer Directory After Checkout
+      - name: Debug - List All Files and Directories
         run: |
-          echo "Checking Packer directory..."
-          ls -la packer || echo "🚨 packer directory is missing!"
+          echo "Listing all files and directories recursively..."
+          ls -la
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
