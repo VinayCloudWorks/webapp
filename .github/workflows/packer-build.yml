@@ -68,7 +68,10 @@ jobs:
           sudo mv packer /usr/local/bin/
 
       - name: Install AWS CLI
-        run: sudo apt-get install -y awscli
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+           unzip -o awscliv2.zip
+           sudo ./aws/install
 
       - name: Install GCP CLI SDK
         uses: google-github-actions/setup-gcloud@v1
