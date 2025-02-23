@@ -1,25 +1,33 @@
 name: Packer Status Check
 
-on: [pull_request]
+on:
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  packer-status-check:
+  packer-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Install Packer
-        run: |
-          wget https://releases.hashicorp.com/packer/1.8.5/packer_1.8.5_linux_amd64.zip
-          unzip packer_1.8.5_linux_amd64.zip
-          sudo mv packer /usr/local/bin/
+      - name: Install Packer Plugins
+        run: packer init packer/custom-image.pkr.hcl
 
       - name: Run Packer Format Check
-        run: packer fmt -check=true -diff=true .
-
-      - name: Initialize Packer
-        run: packer init .
+        run: packer fmt -check packer/custom-image.pkr.hcl
 
       - name: Run Packer Validate
-        run: packer validate custom-image.pkr.hcl
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_DEFAULT_SUBNET_ID: ${{ secrets.AWS_DEFAULT_SUBNET_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: |
+          packer validate \
+            -var "aws_region=${AWS_REGION}" \
+            -var "aws_default_subnet_id=${AWS_DEFAULT_SUBNET_ID}" \
+            -var "gcp_zone=${GCP_ZONE}" \
+            -var "gcp_project_id=${GCP_PROJECT_ID}" \
+            packer/custom-image.pkr.hcl
