@@ -116,12 +116,14 @@ jobs:
           AWS_DEFAULT_SUBNET_ID: ${{ secrets.AWS_DEFAULT_SUBNET_ID }}
           GCP_ZONE: ${{ secrets.GCP_ZONE }}
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          AWS_DEMO_ACCOUNT_ID: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
         run: |
           packer validate \
             -var "aws_region=${AWS_REGION}" \
             -var "aws_default_subnet_id=${AWS_DEFAULT_SUBNET_ID}" \
             -var "gcp_zone=${GCP_ZONE}" \
             -var "gcp_project_id=${GCP_PROJECT_ID}" \
+            -var "AWS_DEMO_ACCOUNT_ID=${AWS_DEMO_ACCOUNT_ID}" \
             ./packer/custom-image.pkr.hcl
 
       - name: Run Packer Build
@@ -129,6 +131,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          AWS_DEMO_ACCOUNT_ID: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
         run: |
           packer build \
             -var "aws_region=${{ secrets.AWS_REGION }}" \
