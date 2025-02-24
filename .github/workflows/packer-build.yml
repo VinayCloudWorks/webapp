@@ -153,6 +153,7 @@ jobs:
           aws ec2 describe-images --executable-users self --filters "Name=name,Values=webappAMI-*" --output json
           # Extract the latest image ID
           AMI_ID=$(aws ec2 describe-images \
+            --region $AWS_REGION \
             --executable-users self \
             --filters "Name=name,Values=webappAMI-*" \
             --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
