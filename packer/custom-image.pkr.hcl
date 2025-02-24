@@ -111,6 +111,8 @@ source "googlecompute" "ubuntu" {
   image_name            = "custom-nodejs-app-{{timestamp}}"
   ssh_username          = "ubuntu"
   service_account_email = "github-actions-packer@dev-gcp-project-451816.iam.gserviceaccount.com"
+  disk_size             = 10
+  disk_type             = "pd-standard"
 }
 
 ####################
