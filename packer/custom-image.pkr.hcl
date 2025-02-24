@@ -56,7 +56,7 @@ variable "DEV_ACCOUNT_ID" {
   default     = "" // Provide your Dev account ID here, or leave empty if using credentials from the Dev account
 }
 
-variable "DEMO_ACCOUNT_ID" {
+variable "AWS_DEMO_ACCOUNT_ID" {
   description = "AWS Account ID for Demo"
   type        = string
   default     = "" // Provide your Demo account ID if sharing the AMI, or leave empty if not required
@@ -93,7 +93,7 @@ source "amazon-ebs" "ubuntu" {
   ami_description = local.ami_description
   vpc_id          = var.vpc_id
   subnet_id       = var.aws_default_subnet_id
-  ami_users       = [var.DEV_ACCOUNT_ID, var.DEMO_ACCOUNT_ID]
+  ami_users       = [var.AWS_DEMO_ACCOUNT_ID]
 
   tags = {
     Name        = var.ami_name
@@ -105,12 +105,12 @@ source "amazon-ebs" "ubuntu" {
 # GCP Builder
 ####################
 source "googlecompute" "ubuntu" {
-  project_id          = var.gcp_project_id
-  zone                = var.gcp_zone
-  machine_type        = "e2-medium"
-  source_image_family = "ubuntu-2404-noble-amd64-v20250214"
-  image_name          = "custom-nodejs-app-{{timestamp}}"
-  ssh_username        = "ubuntu"
+  project_id   = var.gcp_project_id
+  zone         = var.gcp_zone
+  machine_type = "e2-medium"
+  source_image = "ubuntu-2404-noble-amd64-v20250214"
+  image_name   = "custom-nodejs-app-{{timestamp}}"
+  ssh_username = "ubuntu"
 }
 
 ####################
