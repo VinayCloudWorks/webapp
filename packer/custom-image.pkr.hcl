@@ -122,22 +122,6 @@ build {
     "source.googlecompute.ubuntu"
   ]
 
-  # Transfer the build artifacts to the instance
-  provisioner "file" {
-    source      = "/tmp/app_artifact.zip"
-    destination = "/tmp/app_artifact.zip"
-  }
-
-  provisioner "file" {
-    source      = "/tmp/.env"
-    destination = "/tmp/.env"
-  }
-
-  provisioner "file" {
-    source      = "deploy/app.service"
-    destination = "/tmp/app.service"
-  }
-
   provisioner "shell" {
     inline = [
       "# Update and upgrade the OS",
