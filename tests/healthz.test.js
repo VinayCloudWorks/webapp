@@ -31,7 +31,7 @@ describe('Health Check API (Real DB Connection)', () => {
             .get('/healthz')
             .send();
 
-        expect(res.statusCode).toBe(403);
+        expect(res.statusCode).toBe(200);
         expect(res.headers['cache-control']).toBe('no-cache, no-store, must-revalidate');
         expect(res.headers['pragma']).toBe('no-cache');
         expect(res.headers['x-content-type-options']).toBe('nosniff');
