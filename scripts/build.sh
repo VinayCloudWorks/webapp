@@ -16,7 +16,7 @@ echo "Packaging application artifact..."
 zip -r artifacts/app_artifact.zip . -x "artifacts/*" -x ".git/*"
 
 echo "Creating .env file..."
-cat <<EOF > /tmp/.env
+cat <<EOF > artifacts/.env
 PORT=${PORT}
 DB_NAME=${MYSQL_DATABASE}
 DB_PASS=${MYSQL_ROOT_PASSWORD}
