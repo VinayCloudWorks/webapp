@@ -12,6 +12,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Build Application Artifacts
+        env:
+          PORT: ${{ secrets.PORT }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_DIALECT: ${{ secrets.DB_DIALECT }}
+        run: ./scripts/build.sh
+
+      - name: List Artifacts Directory
+        run: ls -la ./artifacts
+
       - name: Install Packer Plugins
         run: packer init packer/custom-image.pkr.hcl
 

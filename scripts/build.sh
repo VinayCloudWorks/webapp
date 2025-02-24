@@ -3,18 +3,20 @@
 
 set -e
 
-echo "Cleaning previous artifact (if any)..."
-rm -f /tmp/app_artifact.zip
+echo "Cleaning previous artifacts (if any)..."
+rm -rf artifacts
+mkdir -p artifacts
 
 echo "Installing production dependencies..."
 npm install --production
 
 echo "Packaging application artifact..."
-# Package all necessary files (adjust as needed).
-zip -r /tmp/app_artifact.zip server.js package.json controllers models routes utils.js README.md
+# Package all files and directories in the repo into a zip
+# Exclude the artifacts folder and .git directory.
+zip -r artifacts/app_artifact.zip . -x "artifacts/*" -x ".git/*"
 
 echo "Creating .env file..."
-cat <<EOF > /tmp/.env
+cat <<EOF > artifacts/.env
 PORT=${PORT}
 DB_NAME=${MYSQL_DATABASE}
 DB_PASS=${MYSQL_ROOT_PASSWORD}
@@ -22,7 +24,7 @@ DB_USER=${DB_USER}
 DB_HOST=${DB_HOST}
 EOF
 
-echo "Copying systemd service file to /tmp..."
-cp deploy/app.service /tmp/app.service
+echo "Copying systemd service file to artifacts..."
+cp deploy/app.service artifacts/app.service
 
-echo "Artifact, .env, and service file have been prepared in /tmp."
+echo "Artifact, .env, and service file have been prepared in the artifacts folder."

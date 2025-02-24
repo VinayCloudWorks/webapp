@@ -108,7 +108,7 @@ source "googlecompute" "ubuntu" {
   project_id          = var.gcp_project_id
   zone                = var.gcp_zone
   machine_type        = "e2-medium"
-  source_image_family = "ubuntu-2404-lts"
+  source_image_family = "ubuntu-2404-noble-amd64-v20250214"
   image_name          = "custom-nodejs-app-{{timestamp}}"
   ssh_username        = "ubuntu"
 }
@@ -121,6 +121,22 @@ build {
     "source.amazon-ebs.ubuntu",
     "source.googlecompute.ubuntu"
   ]
+
+  # File provisioners to copy the generated artifacts from the workspace
+  provisioner "file" {
+    source      = "./artifacts/app_artifact.zip"
+    destination = "/tmp/app_artifact.zip"
+  }
+
+  provisioner "file" {
+    source      = "./artifacts/.env"
+    destination = "/tmp/.env"
+  }
+
+  provisioner "file" {
+    source      = "./artifacts/app.service"
+    destination = "/tmp/app.service"
+  }
 
   provisioner "shell" {
     inline = [
