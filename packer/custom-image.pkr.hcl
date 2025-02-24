@@ -35,7 +35,7 @@ variable "instance_type" {
 variable "vpc_id" {
   description = "VPC ID where the instance should be launched"
   type        = string
-  default     = ""  // Set to empty if not used
+  default     = "" // Set to empty if not used
 }
 
 variable "aws_default_subnet_id" {
@@ -53,13 +53,13 @@ variable "ami_name" {
 variable "DEV_ACCOUNT_ID" {
   description = "AWS Account ID for DEV"
   type        = string
-  default     = ""  // Provide your Dev account ID here, or leave empty if using credentials from the Dev account
+  default     = "" // Provide your Dev account ID here, or leave empty if using credentials from the Dev account
 }
 
 variable "DEMO_ACCOUNT_ID" {
   description = "AWS Account ID for Demo"
   type        = string
-  default     = ""  // Provide your Demo account ID if sharing the AMI, or leave empty if not required
+  default     = "" // Provide your Demo account ID if sharing the AMI, or leave empty if not required
 }
 
 variable "gcp_project_id" {
