@@ -67,29 +67,6 @@ jobs:
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
         run: ./scripts/build.sh
 
-      - name: Debug - Verify Build Artifacts in /tmp
-        run: |
-          echo "Checking /tmp for app_artifact.zip and related files..."
-          ls -l /tmp
-          if [ -f /tmp/app_artifact.zip ]; then
-            echo "app_artifact.zip exists."
-          else
-            echo "ERROR: app_artifact.zip does NOT exist in /tmp!"
-            exit 1
-          fi
-          if [ -f /tmp/.env ]; then
-            echo ".env file exists."
-            echo "Contents of /tmp/.env:"
-            cat /tmp/.env
-          else
-            echo "WARNING: .env file not found."
-          fi
-          if [ -f /tmp/app.service ]; then
-            echo "app.service exists."
-          else
-            echo "WARNING: app.service not found."
-          fi
-
       - name: Install AWS CLI
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
