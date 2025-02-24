@@ -104,13 +104,13 @@ source "amazon-ebs" "ubuntu" {
 # GCP Builder
 ####################
 source "googlecompute" "ubuntu" {
-  project_id      = var.gcp_project_id
-  zone            = var.gcp_zone
-  machine_type    = "e2-medium"
-  source_image    = "ubuntu-2404-noble-amd64-v20250214"
-  image_name      = "custom-nodejs-app-{{timestamp}}"
-  ssh_username    = "ubuntu"
-  service_account = "github-actions-packer@dev-gcp-project-451816.iam.gserviceaccount.com"
+  project_id            = var.gcp_project_id
+  zone                  = var.gcp_zone
+  machine_type          = "e2-medium"
+  source_image          = "ubuntu-2404-noble-amd64-v20250214"
+  image_name            = "custom-nodejs-app-{{timestamp}}"
+  ssh_username          = "ubuntu"
+  service_account_email = "github-actions-packer@dev-gcp-project-451816.iam.gserviceaccount.com"
 }
 
 ####################
