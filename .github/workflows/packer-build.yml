@@ -151,7 +151,7 @@ jobs:
           echo "Retrieving latest AMI ID..."
           AMI_ID=$(aws ec2 describe-images \
             --executable-users self \
-            --filters "Name=name,Values=custom-nodejs-app-*" \
+            --filters "Name=name,Values=webappAMI-*" \
             --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
             --output text)
           echo "Latest AMI ID: $AMI_ID"
