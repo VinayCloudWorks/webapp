@@ -111,12 +111,8 @@ source "googlecompute" "ubuntu" {
   image_name            = "custom-nodejs-app-{{timestamp}}"
   ssh_username          = "ubuntu"
   service_account_email = "github-actions-packer@dev-gcp-project-451816.iam.gserviceaccount.com"
-
-  boot_disk {
-    auto_delete = true
-    disk_size   = 10            # Adjust disk size (in GB) as needed
-    disk_type   = "pd-standard" # Or "pd-ssd" if desired
-  }
+  disk_size             = 10
+  disk_type             = "pd-standard"
 }
 
 ####################
