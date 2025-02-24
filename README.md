@@ -84,4 +84,4 @@ CopyEdit
 
 `./<script_filename>.sh`
 
-Test 7
+Build check 32
