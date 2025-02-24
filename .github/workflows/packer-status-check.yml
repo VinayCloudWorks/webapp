@@ -26,6 +26,8 @@ jobs:
         run: ls -la ./artifacts
 
       - name: Install Packer Plugins
+        env:
+          PACKER_GITHUB_API_TOKEN: ${{ secrets.GCP_API_TOKEN }}
         run: packer init packer/custom-image.pkr.hcl
 
       - name: Run Packer Format Check

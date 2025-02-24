@@ -106,6 +106,8 @@ jobs:
           ls -la
 
       - name: Initialize Packer Template
+        env:
+          PACKER_GITHUB_API_TOKEN: ${{ secrets.GCP_API_TOKEN }}
         run: packer init ./packer/custom-image.pkr.hcl
 
       - name: Validate Packer Template
