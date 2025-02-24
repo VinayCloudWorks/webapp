@@ -20,6 +20,48 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "source_ami" {
+  description = "Ubuntu 24.04 LTS AMI ID for us-east-1"
+  type        = string
+  default     = "ami-09b4f17f4df57bbf2"
+}
+
+variable "instance_type" {
+  description = "EC2 Instance type for the build"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "vpc_id" {
+  description = "VPC ID where the instance should be launched"
+  type        = string
+  default     = "" // Set to empty if not used
+}
+
+variable "aws_default_subnet_id" {
+  description = "Subnet ID of your default VPC (must be from your DEV account's default VPC)"
+  type        = string
+  default     = "" # This value will be provided via GitHub Secrets in the workflow.
+}
+
+variable "ami_name" {
+  description = "Name prefix for the generated AMI"
+  type        = string
+  default     = "webappAMI"
+}
+
+variable "DEV_ACCOUNT_ID" {
+  description = "AWS Account ID for DEV"
+  type        = string
+  default     = "" // Provide your Dev account ID here, or leave empty if using credentials from the Dev account
+}
+
+variable "DEMO_ACCOUNT_ID" {
+  description = "AWS Account ID for Demo"
+  type        = string
+  default     = "" // Provide your Demo account ID if sharing the AMI, or leave empty if not required
+}
+
 variable "gcp_project_id" {
   description = "GCP project ID for building the custom image"
   type        = string
@@ -31,35 +73,32 @@ variable "gcp_zone" {
   default     = "us-central1-a"
 }
 
-variable "aws_default_subnet_id" {
-  description = "Subnet ID of your default VPC (must be from your DEV account's default VPC)"
-  type        = string
-  default     = "" # This value will be provided via GitHub Secrets in the workflow.
+####################
+# Local Values
+####################
+locals {
+  ami_description = "Image for webapp"
+  timestamp       = regex_replace(timestamp(), "[- TZ:]", "")
 }
 
 ####################
-# AWS Builder
+# AWS Builder (Updated with previous logic)
 ####################
 source "amazon-ebs" "ubuntu" {
-  region = var.aws_region
+  region          = var.aws_region
+  source_ami      = var.source_ami
+  instance_type   = var.instance_type
+  ssh_username    = "ubuntu"
+  ami_name        = "${var.ami_name}-${local.timestamp}"
+  ami_description = local.ami_description
+  vpc_id          = var.vpc_id
+  subnet_id       = var.aws_default_subnet_id
+  ami_users       = [var.DEV_ACCOUNT_ID, var.DEMO_ACCOUNT_ID]
 
-  source_ami_filter {
-    filters = {
-      name                = "ubuntu/images/hvm-ssd/ubuntu-24.04-amd64-server-*"
-      root-device-type    = "ebs"
-      virtualization-type = "hvm"
-    }
-    owners      = ["099720109477"]
-    most_recent = true
+  tags = {
+    Name        = var.ami_name
+    Environment = "Dev"
   }
-
-  instance_type               = "t2.micro"
-  ssh_username                = "ubuntu"
-  ami_name                    = "custom-nodejs-app-{{timestamp}}"
-  associate_public_ip_address = true
-
-  # Ensure the build instance runs in your default VPC by providing the subnet ID.
-  subnet_id = var.aws_default_subnet_id != "" ? var.aws_default_subnet_id : null
 }
 
 ####################
@@ -133,5 +172,3 @@ build {
     strip_path = true
   }
 }
-
-
