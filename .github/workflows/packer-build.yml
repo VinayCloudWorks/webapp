@@ -108,8 +108,13 @@ jobs:
 
       - name: Configure GCP Credentials
         run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > /tmp/gcloud.json
+          cat << 'EOF' > /tmp/gcloud.json
+          ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          EOF
           echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcloud.json" >> $GITHUB_ENV
+
+      - name: Show First Few Lines of JSON
+        run: head -n 5 /tmp/gcloud.json
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
