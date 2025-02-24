@@ -149,12 +149,22 @@ jobs:
           AWS_DEMO_ACCOUNT_ID: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
         run: |
           echo "Retrieving latest AMI ID..."
+          # Print all matching images for debugging
+          aws ec2 describe-images --executable-users self --filters "Name=name,Values=webappAMI-*" --output json
+          # Extract the latest image ID
           AMI_ID=$(aws ec2 describe-images \
             --executable-users self \
             --filters "Name=name,Values=webappAMI-*" \
             --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
             --output text)
+
           echo "Latest AMI ID: $AMI_ID"
+
+          if [ "$AMI_ID" = "None" ] || [ -z "$AMI_ID" ]; then
+            echo "No AMI found matching webappAMI-*"
+            exit 1
+          fi
+
           echo "Sharing AMI with Demo Account..."
           aws ec2 modify-image-attribute --image-id "$AMI_ID" \
             --launch-permission "Add=[{UserId=${AWS_DEMO_ACCOUNT_ID}}]"
