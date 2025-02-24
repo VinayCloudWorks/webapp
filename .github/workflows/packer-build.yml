@@ -106,6 +106,8 @@ jobs:
           ls -la
 
       - name: Initialize Packer Template
+        env:
+          PACKER_GITHUB_API_TOKEN: ${{ secrets.GCP_API_TOKEN }}
         run: packer init ./packer/custom-image.pkr.hcl
 
       - name: Validate Packer Template
@@ -133,6 +135,7 @@ jobs:
             -var "aws_default_subnet_id=${{ secrets.AWS_DEFAULT_SUBNET_ID }}" \
             -var "gcp_zone=${{ secrets.GCP_ZONE }}" \
             -var "gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var "AWS_DEMO_ACCOUNT_ID=${{ secrets.AWS_DEMO_ACCOUNT_ID }}" \
             ./packer/custom-image.pkr.hcl
 
       - name: Retrieve Latest AMI ID and Share with Demo Account
