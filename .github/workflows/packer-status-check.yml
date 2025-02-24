@@ -22,6 +22,9 @@ jobs:
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
         run: ./scripts/build.sh
 
+      - name: List Artifacts Directory
+        run: ls -la ./artifacts
+
       - name: Install Packer Plugins
         run: packer init packer/custom-image.pkr.hcl
 

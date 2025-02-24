@@ -124,17 +124,17 @@ build {
 
   # File provisioners to copy the generated artifacts from the workspace
   provisioner "file" {
-    source      = "artifacts/app_artifact.zip"
+    source      = "./artifacts/app_artifact.zip"
     destination = "/tmp/app_artifact.zip"
   }
 
   provisioner "file" {
-    source      = "artifacts/.env"
+    source      = "./artifacts/.env"
     destination = "/tmp/.env"
   }
 
   provisioner "file" {
-    source      = "artifacts/app.service"
+    source      = "./artifacts/app.service"
     destination = "/tmp/app.service"
   }
 
