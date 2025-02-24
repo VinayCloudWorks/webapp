@@ -56,7 +56,7 @@ variable "DEV_ACCOUNT_ID" {
   default     = "" // Provide your Dev account ID here, or leave empty if using credentials from the Dev account
 }
 
-variable "DEMO_ACCOUNT_ID" {
+variable "AWS_DEMO_ACCOUNT_ID" {
   description = "AWS Account ID for Demo"
   type        = string
   default     = "" // Provide your Demo account ID if sharing the AMI, or leave empty if not required
