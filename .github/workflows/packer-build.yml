@@ -148,31 +148,21 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_DEMO_ACCOUNT_ID: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
         run: |
+          echo "Listing all AMIs matching '*webappAMI*' for debugging:"
+          aws ec2 describe-images --region $AWS_REGION --filters "Name=name,Values=*webappAMI*" --output table
           echo "Retrieving latest AMI ID..."
-          retries=5
-          count=0
-          AMI_ID=""
-          while [ $count -lt $retries ]; do
-           AMI_ID=$(aws ec2 describe-images \
-             --region $AWS_REGION \
-             --executable-users self \
-             --filters "Name=name,Values=webappAMI-*" \
-             --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
-             --output text)
-           if [ "$AMI_ID" != "None" ] && [ -n "$AMI_ID" ]; then
-            break
-           fi
-           echo "AMI not found, waiting 30 seconds and retrying... (attempt: $((count+1)))"
-           sleep 30
-           count=$((count + 1))
-          done
-            
-          echo "Latest AMI ID: $AMI_ID"
-          if [ "$AMI_ID" = "None" ] || [ -z "$AMI_ID" ]; then
-            echo "No AMI found matching webappAMI-*"
-            exit 1
-          fi
+          AMI_ID=$(aws ec2 describe-images \
+            --region $AWS_REGION \
+            --filters "Name=name,Values=webappAMI-*" \
+            --query 'Images | sort_by(@, &CreationDate)[-1].ImageId' \
+            --output text)
 
+           echo "Latest AMI ID: $AMI_ID"
+           if [ "$AMI_ID" = "None" ] || [ -z "$AMI_ID" ]; then
+              echo "No AMI found matching webappAMI-*"
+              exit 10
+           fi
+            
           echo "Sharing AMI with Demo Account..."
           aws ec2 modify-image-attribute --region $AWS_REGION --image-id "$AMI_ID" \
             --launch-permission "Add=[{UserId=${AWS_DEMO_ACCOUNT_ID}}]"
