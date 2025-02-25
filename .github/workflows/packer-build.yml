@@ -192,8 +192,17 @@ jobs:
             exit 1
           fi
 
-          echo "Sharing GCP image with Demo Account..."
-          gcloud compute images add-iam-policy-binding $IMAGE_NAME \
-            --project $GCP_PROJECT_ID \
-            --member="$GCP_DEMO_MEMBER" \
-            --role="roles/compute.imageUser"
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+
+      - name: Copy GCP Image to Demo Project (Create Alias)
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
+        run: |
+          echo "Copying image from DEV project ($GCP_PROJECT_ID) to DEMO project ($GCP_DEMO_PROJECT_ID)..."
+          gcloud compute images create my-demo-image \
+            --source-image=projects/${GCP_PROJECT_ID}/global/images/${IMAGE_NAME} \
+            --source-image-project=${GCP_PROJECT_ID} \
+            --project=${GCP_DEMO_PROJECT_ID} \
+            --family=custom-nodejs-app \
+            --description="Copied image from DEV"
