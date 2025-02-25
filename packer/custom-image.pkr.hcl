@@ -50,6 +50,21 @@ variable "ami_name" {
   default     = "webappAMI"
 }
 
+variable "MYSQL_ROOT_PASSWORD" {
+  type        = string
+  description = "MySQL root password"
+}
+
+variable "DB_USER" {
+  type        = string
+  description = "Database username"
+}
+
+variable "MYSQL_DATABASE" {
+  type        = string
+  description = "Database name"
+}
+
 variable "DEV_ACCOUNT_ID" {
   description = "AWS Account ID for DEV"
   type        = string
@@ -148,6 +163,16 @@ build {
 
       "# Install MySQL server",
       "sudo apt-get install -y mysql-server",
+
+      "# Enable and start MySQL service",
+      "sudo systemctl enable mysql",
+      "sudo systemctl start mysql",
+
+      "# Create MySQL user & database with remote access",
+      "mysql -u root -e \"CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';\"",
+      "mysql -u root -e \"CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;\"",
+      "mysql -u root -e \"GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$DB_USER'@'%';\"",
+      "mysql -u root -e \"FLUSH PRIVILEGES;\"",
 
       "# Install Node.js and npm (using NodeSource for Node 18.x)",
       "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -",
