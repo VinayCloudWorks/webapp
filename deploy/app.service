@@ -1,15 +1,18 @@
 [Unit]
 Description=Node.js Web Application Service
-After=network.target
+ConditionPathExists=/opt/csye6225/.env
+After=network.target mysql.service
 
 [Service]
-ExecStart=/usr/bin/node /opt/csye6225/server.js
-Restart=always
 User=csye6225
 Group=csye6225
-Environment=PATH=/usr/bin:/usr/local/bin
-Environment=NODE_ENV=production
 WorkingDirectory=/opt/csye6225
+EnvironmentFile=/opt/csye6225/.env
+ExecStartPre=/usr/bin/npm install
+ExecStart=/usr/bin/node /opt/csye6225/server.js
+Restart=on-failure
+RestartSec=15
 
 [Install]
 WantedBy=multi-user.target
+
