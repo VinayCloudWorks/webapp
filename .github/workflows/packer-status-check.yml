@@ -40,6 +40,9 @@ jobs:
           GCP_ZONE: ${{ secrets.GCP_ZONE }}
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           AWS_DEMO_ACCOUNT_ID: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
         run: |
           packer validate \
             -var "aws_region=${AWS_REGION}" \
@@ -47,4 +50,7 @@ jobs:
             -var "gcp_zone=${GCP_ZONE}" \
             -var "gcp_project_id=${GCP_PROJECT_ID}" \
             -var "AWS_DEMO_ACCOUNT_ID=${AWS_DEMO_ACCOUNT_ID}" \
+            -var "MYSQL_DATABASE=${MYSQL_DATABASE}" \
+            -var "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" \
+            -var "DB_USER=${DB_USER}" \
             packer/custom-image.pkr.hcl
