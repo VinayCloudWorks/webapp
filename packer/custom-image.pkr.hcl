@@ -169,10 +169,10 @@ build {
       "sudo systemctl start mysql",
 
       "# Create MySQL user & database with remote access",
-      "sudo mysql -u root -e \"CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';\"",
-      "sudo mysql -u root -e \"CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;\"",
-      "sudo mysql -u root -e \"GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$DB_USER'@'%';\"",
-      "sudo mysql -u root -e \"FLUSH PRIVILEGES;\"",
+      "sudo mysql -e \"CREATE USER IF NOT EXISTS '${var.DB_USER}'@'%' IDENTIFIED BY '${var.MYSQL_ROOT_PASSWORD}';\"",
+      "sudo mysql -e \"CREATE DATABASE IF NOT EXISTS ${var.MYSQL_DATABASE};\"",
+      "sudo mysql -e \"GRANT ALL PRIVILEGES ON ${var.MYSQL_DATABASE}.* TO '${var.DB_USER}'@'%';\"",
+      "sudo mysql -e \"FLUSH PRIVILEGES;\"",
 
       "# Install Node.js and npm (using NodeSource for Node 18.x)",
       "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -",
