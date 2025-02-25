@@ -84,4 +84,4 @@ CopyEdit
 
 `./<script_filename>.sh`
 
-Build check 32
+Build check GCP
