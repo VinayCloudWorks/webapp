@@ -138,6 +138,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
           AWS_DEMO_ACCOUNT_ID: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
         run: |
           packer build \
             -var "aws_region=${{ secrets.AWS_REGION }}" \
@@ -145,6 +148,9 @@ jobs:
             -var "gcp_zone=${{ secrets.GCP_ZONE }}" \
             -var "gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var "AWS_DEMO_ACCOUNT_ID=${{ secrets.AWS_DEMO_ACCOUNT_ID }}" \
+            -var "MYSQL_DATABASE=${MYSQL_DATABASE}" \
+            -var "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" \
+            -var "DB_USER=${DB_USER}" \
             ./packer/custom-image.pkr.hcl
 
       - name: Retrieve Latest AMI ID and Share with Demo Account
