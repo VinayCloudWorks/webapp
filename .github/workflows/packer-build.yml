@@ -166,3 +166,28 @@ jobs:
           echo "Sharing AMI with Demo Account..."
           aws ec2 modify-image-attribute --region $AWS_REGION --image-id "$AMI_ID" \
             --launch-permission "Add=[{UserId=${AWS_DEMO_ACCOUNT_ID}}]"
+
+      - name: Retrieve Latest GCP Machine Image and Share with Demo Account
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_DEMO_MEMBER: ${{ secrets.GCP_DEMO_MEMBER }}
+        run: |
+          echo "Retrieving latest GCP machine image..."
+          IMAGE_NAME=$(gcloud compute images list \
+            --project $GCP_PROJECT_ID \
+            --filter="name~'^custom-nodejs-app-'" \
+            --sort-by=~creationTimestamp \
+            --limit=1 \
+            --format="value(name)")
+
+          echo "Latest GCP Image Name: $IMAGE_NAME"
+          if [ -z "$IMAGE_NAME" ]; then
+            echo "No GCP machine image found matching custom-nodejs-app-*"
+            exit 1
+          fi
+
+          echo "Sharing GCP image with Demo Account..."
+          gcloud compute images add-iam-policy-binding $IMAGE_NAME \
+            --project $GCP_PROJECT_ID \
+            --member="$GCP_DEMO_MEMBER" \
+            --role="roles/compute.imageUser"
