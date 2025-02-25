@@ -22,6 +22,7 @@ DB_NAME=${MYSQL_DATABASE}
 DB_PASS=${MYSQL_ROOT_PASSWORD}
 DB_USER=${DB_USER}
 DB_HOST=${DB_HOST}
+DB_DIALECT=${DB_DIALECT}
 EOF
 
 echo "Copying systemd service file to artifacts..."
