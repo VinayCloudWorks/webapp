@@ -84,4 +84,4 @@ CopyEdit
 
 `./<script_filename>.sh`
 
-Build check GCP
+Build check MYSQL
