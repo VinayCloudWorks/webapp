@@ -137,7 +137,7 @@ jobs:
             -var "MYSQL_DATABASE=${MYSQL_DATABASE}" \
             -var "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" \
             -var "DB_USER=${DB_USER}" \
-            -var "PORT=${PORT}" \  
+            -var "PORT=${PORT}" \
             -var "DB_DIALECT=${DB_DIALECT}" \
             -var "DB_HOST=${DB_HOST}" \
             ./packer/custom-image.pkr.hcl
