@@ -181,15 +181,11 @@ build {
       "# Wait for MySQL to be fully operational",
       "until sudo mysqladmin ping --silent; do sleep 2; done",
 
-      "# Ensure root user uses password authentication",
-      "sudo mysql -e \"ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${var.MYSQL_ROOT_PASSWORD}';\"",
-      "sudo mysql -e \"FLUSH PRIVILEGES;\"",
-
-
-      "# Create MySQL user & database with remote access",
-      "sudo mysql -e \"CREATE USER IF NOT EXISTS '${var.DB_USER}'@'%' IDENTIFIED BY '${var.MYSQL_ROOT_PASSWORD}';\"",
-      "sudo mysql -e \"CREATE DATABASE IF NOT EXISTS ${var.MYSQL_DATABASE};\"",
-      "sudo mysql -e \"GRANT ALL PRIVILEGES ON ${var.MYSQL_DATABASE}.* TO '${var.DB_USER}'@'%';\"",
+      "# Create MySQL database and user",
+      "echo 'Creating database and dedicated MySQL user...'",
+      "sudo mysql -e \"CREATE DATABASE ${var.MYSQL_DATABASE};\"",
+      "sudo mysql -e \"CREATE USER '${var.DB_USER}'@'localhost' IDENTIFIED BY '${var.MYSQL_ROOT_PASSWORD}';\"",
+      "sudo mysql -e \"GRANT ALL PRIVILEGES ON ${var.MYSQL_DATABASE}.* TO '${var.DB_USER}'@'localhost';\"",
       "sudo mysql -e \"FLUSH PRIVILEGES;\"",
 
       "# Install Node.js and npm (using NodeSource for Node 18.x)",
