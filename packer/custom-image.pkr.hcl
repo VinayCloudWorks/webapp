@@ -157,6 +157,16 @@ build {
 
   provisioner "shell" {
     inline = [
+      "# Debug: Print environment variables",
+      "echo 'DB_NAME: ${var.MYSQL_DATABASE}'",
+      "echo 'DB_USER: ${var.DB_USER}'",
+      "echo 'MYSQL_ROOT_PASSWORD: ${var.MYSQL_ROOT_PASSWORD}'",
+
+      "# Exit if required variables are missing",
+      "[ -z \"${var.MYSQL_DATABASE}\" ] && echo 'Error: MYSQL_DATABASE is missing' && exit 1",
+      "[ -z \"${var.DB_USER}\" ] && echo 'Error: DB_USER is missing' && exit 1",
+      "[ -z \"${var.MYSQL_ROOT_PASSWORD}\" ] && echo 'Error: MYSQL_ROOT_PASSWORD is missing' && exit 1",
+
       "# Update and upgrade the OS",
       "sudo apt-get update -y",
       "sudo apt-get upgrade -y",
@@ -167,6 +177,14 @@ build {
       "# Enable and start MySQL service",
       "sudo systemctl enable mysql",
       "sudo systemctl start mysql",
+
+      "# Wait for MySQL to be fully operational",
+      "until sudo mysqladmin ping --silent; do sleep 2; done",
+
+      "# Ensure root user uses password authentication",
+      "sudo mysql -e \"ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${var.MYSQL_ROOT_PASSWORD}';\"",
+      "sudo mysql -e \"FLUSH PRIVILEGES;\"",
+
 
       "# Create MySQL user & database with remote access",
       "sudo mysql -e \"CREATE USER IF NOT EXISTS '${var.DB_USER}'@'%' IDENTIFIED BY '${var.MYSQL_ROOT_PASSWORD}';\"",
