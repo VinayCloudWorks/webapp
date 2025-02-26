@@ -213,8 +213,8 @@ build {
       "# Create MySQL database and user",
       "echo 'Creating database and dedicated MySQL user...'",
       "sudo mysql -e \"CREATE DATABASE ${var.MYSQL_DATABASE};\"",
-      "sudo mysql -e \"CREATE USER IF NOT EXISTS '${var.DB_USER}'@'localhost' IDENTIFIED BY '${var.MYSQL_ROOT_PASSWORD}';\"",
-      "sudo mysql -e \"GRANT ALL PRIVILEGES ON ${var.MYSQL_DATABASE}.* TO '${var.DB_USER}'@'localhost';\"",
+      "sudo mysql -e \"CREATE USER IF NOT EXISTS '${var.DB_USER}'@'%' IDENTIFIED BY '${var.MYSQL_ROOT_PASSWORD}';\"",
+      "sudo mysql -e \"GRANT ALL PRIVILEGES ON ${var.MYSQL_DATABASE}.* TO '${var.DB_USER}'@'%';\"",
       "sudo mysql -e \"FLUSH PRIVILEGES;\"",
 
       "# Install Node.js and npm (using NodeSource for Node 18.x)",
