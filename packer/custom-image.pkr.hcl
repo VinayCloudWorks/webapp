@@ -60,6 +60,21 @@ variable "DB_USER" {
   description = "Database username"
 }
 
+variable "PORT" {
+  type        = string
+  description = "Port for the application"
+}
+
+variable "DB_DIALECT" {
+  type        = string
+  description = "Database dialect (e.g., mysql, postgres)"
+}
+
+variable "DB_HOST" {
+  type        = string
+  description = "Database host address"
+}
+
 variable "MYSQL_DATABASE" {
   type        = string
   description = "Database name"
@@ -166,6 +181,20 @@ build {
       "[ -z \"${var.MYSQL_DATABASE}\" ] && echo 'Error: MYSQL_DATABASE is missing' && exit 1",
       "[ -z \"${var.DB_USER}\" ] && echo 'Error: DB_USER is missing' && exit 1",
       "[ -z \"${var.MYSQL_ROOT_PASSWORD}\" ] && echo 'Error: MYSQL_ROOT_PASSWORD is missing' && exit 1",
+
+      "# Add environment variables to /etc/environment",
+      "echo 'PORT=${var.PORT}' | sudo tee -a /etc/environment",
+      "echo 'DB_NAME=${var.MYSQL_DATABASE}' | sudo tee -a /etc/environment",
+      "echo 'DB_PASS=${var.MYSQL_ROOT_PASSWORD}' | sudo tee -a /etc/environment",
+      "echo 'DB_USER=${var.DB_USER}' | sudo tee -a /etc/environment",
+      "echo 'DB_HOST=${var.DB_HOST}' | sudo tee -a /etc/environment",
+      "echo 'DB_DIALECT=${var.DB_DIALECT}' | sudo tee -a /etc/environment",
+
+      "# Reload environment variables",
+      "source /etc/environment",
+
+      "# Verify that the environment variables are stored correctly",
+      "cat /etc/environment",
 
       "# Update and upgrade the OS",
       "sudo apt-get update -y",
