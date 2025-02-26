@@ -120,6 +120,10 @@ jobs:
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           DB_USER: ${{ secrets.DB_USER }}
+          PORT: ${{ secrets.PORT }}
+          DB_DIALECT: ${{ secrets.DB_DIALECT }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+
         run: |
           packer validate \
             -var "aws_region=${AWS_REGION}" \
@@ -130,6 +134,9 @@ jobs:
             -var "MYSQL_DATABASE=${MYSQL_DATABASE}" \
             -var "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" \
             -var "DB_USER=${DB_USER}" \
+            -var "PORT=${PORT}" \  
+            -var "DB_DIALECT=${DB_DIALECT}" \
+            -var "DB_HOST=${DB_HOST}" \
             ./packer/custom-image.pkr.hcl
 
       - name: Run Packer Build

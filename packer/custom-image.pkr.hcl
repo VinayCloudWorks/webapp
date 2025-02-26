@@ -60,6 +60,21 @@ variable "DB_USER" {
   description = "Database username"
 }
 
+variable "PORT" {
+  type        = string
+  description = "Port for the application"
+}
+
+variable "DB_DIALECT" {
+  type        = string
+  description = "Database dialect (e.g., mysql, postgres)"
+}
+
+variable "DB_HOST" {
+  type        = string
+  description = "Database host address"
+}
+
 variable "MYSQL_DATABASE" {
   type        = string
   description = "Database name"
