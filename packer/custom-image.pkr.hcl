@@ -191,7 +191,7 @@ build {
       "echo 'DB_DIALECT=${var.DB_DIALECT}' | sudo tee -a /etc/environment",
 
       "# Reload environment variables",
-      "source /etc/environment",
+      ". /etc/environment",
 
       "# Verify that the environment variables are stored correctly",
       "cat /etc/environment",
