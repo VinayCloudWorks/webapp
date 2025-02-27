@@ -1,15 +1,15 @@
-- Set up AWS Organizations and configure IAM policies and users.
-- Automate server setup on Ubuntu 24.04 LTS using a shell script.
-- Validate the health check API through an automated test suite.
-- Deploy the application on a DigitalOcean droplet.
+- This repository demonstrates how to build custom machine images for a Node.js web application using Packer on both AWS and GCP. The images include all necessary dependencies—such as MySQL, Node.js, and systemd service configurations—so that the application can run seamlessly once deployed.
+- Uses Ubuntu 24.04 LTS as the source image (verify that ami-09b4f17f4df57bbf2 is Ubuntu 24.04 LTS).
+- Builds images in both AWS and GCP in parallel.
+- Configures images with a local MySQL installation and application dependencies.
 
 **Continuous Integration**
 
-- This project uses GitHub Actions to run tests on every pull request:
+- Packer Status Check Workflow
 
-- The workflow file located at .github/workflows/ci.yml installs dependencies and runs the test suite.
-- Pull requests cannot be merged until the CI checks pass.
-- Branch protection rules enforce that only pull requests with successful CI runs are merged.
+- Packer AMI Build Workflow.
+- Builds the custom image on the DEV account and shares it with the DEMO account.
+- Uses variable-driven configurations with no hard-coded credentials.
 
 * * * * *
 
@@ -84,4 +84,3 @@ CopyEdit
 
 `./<script_filename>.sh`
 
-Build check MYSQL
