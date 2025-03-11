@@ -14,11 +14,6 @@ packer {
 ####################
 # Variable Definitions
 ####################
-variable "aws_region" {
-  description = "AWS region where the custom image will be built"
-  type        = string
-  default     = "us-east-1"
-}
 
 variable "source_ami" {
   description = "Ubuntu 24.04 LTS AMI ID for us-east-1"
