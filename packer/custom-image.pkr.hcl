@@ -32,14 +32,9 @@ variable "instance_type" {
   default     = "t2.micro"
 }
 
-
-
-
-
-
 variable "vpc_id" {
-  description = "VPC ID wher e the instance should be launched"
-  type        =    string
+  description = "VPC ID where the instance should be launched"
+  type        = string
   default     = "" // Set to empty if not used
 }
 
