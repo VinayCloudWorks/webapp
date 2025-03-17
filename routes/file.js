@@ -13,4 +13,16 @@ router.get('/v1/file/:id', fileController.getFile);
 // Delete file endpoint
 router.delete('/v1/file/:id', fileController.deleteFile);
 
+// Handle unsupported methods with 405 responses
+router.head('/v1/file/:id', fileController.headFile);
+router.options('/v1/file/:id', fileController.optionsFile);
+router.patch('/v1/file/:id', fileController.patchFile);
+router.put('/v1/file/:id', fileController.putFile);
+
+// Also handle routes without ID parameter
+router.head('/v1/file', fileController.headFile);
+router.options('/v1/file', fileController.optionsFile);
+router.patch('/v1/file', fileController.patchFile);
+router.put('/v1/file', fileController.putFile);
+
 module.exports = router;

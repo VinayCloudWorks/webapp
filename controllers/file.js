@@ -3,6 +3,11 @@ const { v4: uuidv4 } = require('uuid');
 const File = require('../models/file');
 const { s3, bucketName } = require('../utils');
 
+//Handler for unsupported HTTP methods
+exports.methodNotAllowed = (req, res) => {
+    res.status(405).json({ error: 'Method Not Allowed' })
+};
+
 exports.uploadFile = async (req, res) => {
     try {
         // Check if file was uploaded
@@ -57,7 +62,7 @@ exports.getFile = async (req, res) => {
         // Retrieve the file record from database
         const file = await File.findOne({ where: { file_id: fileId } });
         if (!file) {
-            return res.status(404).json({ error: 'File not found' });
+            return res.status(400).json({ error: 'Bad request: File not found' });
         }
 
         // Return file metadata, not the actual file
@@ -80,7 +85,7 @@ exports.deleteFile = async (req, res) => {
         // Retrieve the file record
         const file = await File.findOne({ where: { file_id: fileId } });
         if (!file) {
-            return res.status(404).json({ error: 'File not found' });
+            return res.status(400).json({ error: 'Bad request: File not found' });
         }
 
         // Delete from S3 bucket 
@@ -102,3 +107,9 @@ exports.deleteFile = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+//405 Method Not Allowed handlers for unsupported methods
+exports.headFile = exports.methodNotAllowed;
+exports.optionsFile = exports.methodNotAllowed;
+exports.patchFile = exports.methodNotAllowed;
+exports.putFile = exports.methodNotAllowed;
