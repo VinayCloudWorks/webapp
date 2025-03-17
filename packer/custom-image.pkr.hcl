@@ -50,16 +50,6 @@ variable "ami_name" {
   default     = "webappAMI"
 }
 
-variable "MYSQL_ROOT_PASSWORD" {
-  type        = string
-  description = "MySQL root password"
-}
-
-variable "DB_USER" {
-  type        = string
-  description = "Database username"
-}
-
 variable "PORT" {
   type        = string
   description = "Port for the application"
@@ -68,16 +58,6 @@ variable "PORT" {
 variable "DB_DIALECT" {
   type        = string
   description = "Database dialect (e.g., mysql, postgres)"
-}
-
-variable "DB_HOST" {
-  type        = string
-  description = "Database host address"
-}
-
-variable "MYSQL_DATABASE" {
-  type        = string
-  description = "Database name"
 }
 
 variable "DEV_ACCOUNT_ID" {
@@ -172,55 +152,23 @@ build {
 
   provisioner "shell" {
     inline = [
-      "# Debug: Print environment variables",
-      "echo 'DB_NAME: ${var.MYSQL_DATABASE}'",
-      "echo 'DB_USER: ${var.DB_USER}'",
-      "echo 'MYSQL_ROOT_PASSWORD: ${var.MYSQL_ROOT_PASSWORD}'",
-
-      "# Exit if required variables are missing",
-      "[ -z \"${var.MYSQL_DATABASE}\" ] && echo 'Error: MYSQL_DATABASE is missing' && exit 1",
-      "[ -z \"${var.DB_USER}\" ] && echo 'Error: DB_USER is missing' && exit 1",
-      "[ -z \"${var.MYSQL_ROOT_PASSWORD}\" ] && echo 'Error: MYSQL_ROOT_PASSWORD is missing' && exit 1",
-
       "# Add environment variables to /etc/environment",
       "echo 'PORT=${var.PORT}' | sudo tee -a /etc/environment",
-      "echo 'DB_NAME=${var.MYSQL_DATABASE}' | sudo tee -a /etc/environment",
-      "echo 'DB_PASS=${var.MYSQL_ROOT_PASSWORD}' | sudo tee -a /etc/environment",
-      "echo 'DB_USER=${var.DB_USER}' | sudo tee -a /etc/environment",
-      "echo 'DB_HOST=${var.DB_HOST}' | sudo tee -a /etc/environment",
       "echo 'DB_DIALECT=${var.DB_DIALECT}' | sudo tee -a /etc/environment",
 
       "# Reload environment variables",
       ". /etc/environment",
 
-      "# Verify that the environment variables are stored correctly",
-      "cat /etc/environment",
-
       "# Update and upgrade the OS",
       "sudo apt-get update -y",
       "sudo apt-get upgrade -y",
 
-      "# Install MySQL server",
-      "sudo apt-get install -y mysql-server",
-
-      "# Enable and start MySQL service",
-      "sudo systemctl enable mysql",
-      "sudo systemctl start mysql",
-
-      "# Wait for MySQL to be fully operational",
-      "until sudo mysqladmin ping --silent; do sleep 2; done",
-
-      "# Create MySQL Database and User with Correct Authentication Plugin",
-      "echo 'Creating database and dedicated MySQL user...'",
-      "sudo mysql -e \"CREATE DATABASE IF NOT EXISTS ${var.MYSQL_DATABASE};\"",
-      "sudo mysql -e \"CREATE USER IF NOT EXISTS '${var.DB_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${var.MYSQL_ROOT_PASSWORD}';\"",
-      "sudo mysql -e \"ALTER USER '${var.DB_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${var.MYSQL_ROOT_PASSWORD}';\"",
-      "sudo mysql -e \"GRANT ALL PRIVILEGES ON ${var.MYSQL_DATABASE}.* TO '${var.DB_USER}'@'%';\"",
-      "sudo mysql -e \"FLUSH PRIVILEGES;\"",
-
       "# Install Node.js and npm (using NodeSource for Node 18.x)",
       "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -",
       "sudo apt-get install -y nodejs",
+      
+      "# Install AWS CLI and unzip for file operations",
+      "sudo apt-get install -y unzip",
 
       "# Create dedicated non-login user 'csye6225'",
       "sudo groupadd csye6225 || true",
@@ -233,7 +181,6 @@ build {
       "sudo cp /tmp/app_artifact.zip /opt/csye6225/",
 
       "# Unzip the artifact and remove the zip file",
-      "sudo apt-get install -y unzip",
       "cd /opt/csye6225 && sudo unzip -o app_artifact.zip && sudo rm app_artifact.zip",
 
       "# Copy the .env file to the application directory",
@@ -242,8 +189,14 @@ build {
       "# Install Node.js dependencies (using package.json in /opt/csye6225)",
       "cd /opt/csye6225 && sudo npm install --production",
 
+      "# Install additional packages for file upload functionality",
+      "cd /opt/csye6225 && sudo npm install aws-sdk multer uuid",
+
       "# Ensure all application files are owned by 'csye6225'",
       "sudo chown -R csye6225:csye6225 /opt/csye6225",
+      
+      "# Set proper permissions (not 777)",
+      "sudo chmod -R 755 /opt/csye6225",
 
       "# Copy the systemd service file from /tmp to /etc/systemd/system",
       "sudo cp /tmp/app.service /etc/systemd/system/app.service",

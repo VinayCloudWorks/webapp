@@ -28,6 +28,7 @@ exports.uploadFile = async (req, res) => {
             }
         };
 
+        // This will work both in production and test environment now
         const s3Result = await s3.upload(uploadParams).promise();
 
         // Create file record in database
@@ -82,12 +83,13 @@ exports.deleteFile = async (req, res) => {
             return res.status(404).json({ error: 'File not found' });
         }
 
-        // Delete from S3 bucket using IAM role authentication
+        // Delete from S3 bucket 
         const deleteParams = {
             Bucket: bucketName,
             Key: file.s3_bucket_path
         };
 
+        // This will work both in production and test environment now
         await s3.deleteObject(deleteParams).promise();
 
         // Delete record from database

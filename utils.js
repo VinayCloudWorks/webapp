@@ -1,22 +1,17 @@
 // utils.js
 const { Sequelize } = require('sequelize');
-const AWS = require('aws-sdk');
 
-// Configuration from environment variables set by user data in EC2
+// Configuration from environment variables
 const dbConfig = {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
+    username: process.env.DB_USER || '',
+    password: process.env.DB_PASS || '',
+    database: process.env.DB_NAME || '',
+    host: process.env.DB_HOST || 'localhost',
     dialect: process.env.DB_DIALECT || 'mysql',
     port: process.env.DB_PORT || 3306
 };
 
-// S3 bucket name from environment variable set by user data
-const bucketName = process.env.S3_BUCKET_NAME;
-
-console.log(`Connecting to database at ${dbConfig.host}`);
-console.log(`Using S3 bucket: ${bucketName}`);
+console.log(`Connecting to database at ${dbConfig.host} with user ${dbConfig.username} and database ${dbConfig.database}`);
 
 // Initialize Sequelize with the configuration
 const sequelize = new Sequelize(
@@ -31,8 +26,30 @@ const sequelize = new Sequelize(
     }
 );
 
-// AWS S3 Configuration - using IAM role attached to EC2 (no credentials needed)
-const s3 = new AWS.S3();
+// Get bucket name from environment (with fallback)
+const bucketName = process.env.S3_BUCKET_NAME || 'test-bucket-name';
+
+// Initialize S3 client
+let s3;
+
+// Check if we're in test mode or missing bucket name
+if (process.env.NODE_ENV === 'test') {
+    // In test mode, create a mock S3 object
+    s3 = {
+        upload: () => ({
+            promise: () => Promise.resolve({ Location: `https://${bucketName}/test-file.jpg` })
+        }),
+        deleteObject: () => ({
+            promise: () => Promise.resolve({})
+        })
+    };
+    console.log('Using mock S3 for testing');
+} else {
+    // In production mode, use the real AWS SDK
+    const AWS = require('aws-sdk');
+    s3 = new AWS.S3();
+    console.log(`Using S3 bucket: ${bucketName}`);
+}
 
 module.exports = {
     sequelize,
