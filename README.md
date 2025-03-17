@@ -86,3 +86,8 @@ CopyEdit
 
 
 
+sudo apt install -y mysql-client
+mysql --version
+mysql -h YOUR_RDS_ENDPOINT -u YOUR_DB_USER -p
+sudo systemctl status app.service
+sudo journalctl -u app.service
