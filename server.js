@@ -2,13 +2,16 @@
 const express = require('express');
 const { sequelize } = require('./utils');
 const healthzRoute = require('./routes/healthz');
+const fileRoutes = require('./routes/file');
 
 const app = express();
-
 app.use(express.json());
-app.use('/', healthzRoute);
 
-// Skip auto-sync when running tests (or integration tests) so that test files control syncing.
+// Routes
+app.use('/', healthzRoute);
+app.use('/', fileRoutes);
+
+// Skip auto-sync when running tests
 if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'integration') {
     (async () => {
         try {
@@ -21,12 +24,10 @@ if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'integration') {
 }
 
 if (require.main === module) {
-    const PORT = 3000;
+    const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
 }
 
 module.exports = app;
-
-

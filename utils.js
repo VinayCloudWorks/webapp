@@ -1,22 +1,41 @@
-require('dotenv').config(); // Load environment variables from .env
-
+// utils.js
 const { Sequelize } = require('sequelize');
+const AWS = require('aws-sdk');
 
-// Use environment variables for database configuration
+// Configuration from environment variables set by user data in EC2
+const dbConfig = {
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    dialect: process.env.DB_DIALECT || 'mysql',
+    port: process.env.DB_PORT || 3306
+};
+
+// S3 bucket name from environment variable set by user data
+const bucketName = process.env.S3_BUCKET_NAME;
+
+console.log(`Connecting to database at ${dbConfig.host}`);
+console.log(`Using S3 bucket: ${bucketName}`);
+
+// Initialize Sequelize with the configuration
 const sequelize = new Sequelize(
-    process.env.DB_NAME,  // Database name
-    process.env.DB_USER,  // Database username
-    process.env.DB_PASS,  // Database password
+    dbConfig.database,
+    dbConfig.username,
+    dbConfig.password,
     {
-        host: process.env.DB_HOST,  // Database host
-        dialect: process.env.DB_DIALECT,  // Dialect (e.g., mysql)
-        logging: false, // Disable SQL query logging
+        host: dbConfig.host,
+        port: dbConfig.port,
+        dialect: dbConfig.dialect,
+        logging: false
     }
 );
 
-// Test database connection
-sequelize.authenticate()
-    .then(() => console.log('Connected to MySQL successfully.'))
-    .catch((error) => console.error('Unable to connect to MySQL:', error));
+// AWS S3 Configuration - using IAM role attached to EC2 (no credentials needed)
+const s3 = new AWS.S3();
 
-module.exports = { sequelize };
+module.exports = {
+    sequelize,
+    s3,
+    bucketName
+};
