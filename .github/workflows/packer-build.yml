@@ -58,7 +58,20 @@ jobs:
           DB_HOST: ${{ secrets.DB_HOST }}
           PORT: ${{ secrets.PORT }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
+          S3_BUCKET_NAME: test-bucket-name
+          NODE_ENV: test
         run: npm test
+        
+      - name: Configure for Production
+        run: |
+          # This ensures that in production, the code tries to load AWS SDK
+          # This step should come after testing but before building
+          if grep -q "process.env.NODE_ENV === 'test'" utils.js; then
+            sed -i "s/process.env.NODE_ENV === 'test'/process.env.NODE_ENV === 'test-disabled'/g" utils.js
+          elif grep -q 'process.env.NODE_ENV === "test"' utils.js; then
+            sed -i 's/process.env.NODE_ENV === "test"/process.env.NODE_ENV === "test-disabled"/g' utils.js
+          fi
+          cat utils.js
 
       - name: Build Application Artifact
         env:
@@ -126,7 +139,6 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           PORT: ${{ secrets.PORT }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
-          DB_HOST: ${{ secrets.DB_HOST }}
 
         run: |
           packer validate \
@@ -140,7 +152,7 @@ jobs:
             -var "DB_USER=${DB_USER}" \
             -var "PORT=${PORT}" \
             -var "DB_DIALECT=${DB_DIALECT}" \
-            -var "DB_HOST=${DB_HOST}" \
+            -var "DB_HOST=placeholder-db.amazonaws.com" \
             ./packer/custom-image.pkr.hcl
 
       - name: Run Packer Build
@@ -154,7 +166,6 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           PORT: ${{ secrets.PORT }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
-          DB_HOST: ${{ secrets.DB_HOST }}
         run: |
           packer build \
             -var "aws_region=${{ secrets.AWS_REGION }}" \
@@ -167,7 +178,7 @@ jobs:
             -var "DB_USER=${DB_USER}" \
             -var "PORT=${PORT}" \
             -var "DB_DIALECT=${DB_DIALECT}" \
-            -var "DB_HOST=${DB_HOST}" \
+            -var "DB_HOST=placeholder-db.amazonaws.com" \
             ./packer/custom-image.pkr.hcl
 
       - name: Retrieve Latest AMI ID and Share with Demo Account
