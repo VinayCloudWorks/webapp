@@ -166,7 +166,7 @@ build {
       "# Install Node.js and npm (using NodeSource for Node 18.x)",
       "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -",
       "sudo apt-get install -y nodejs",
-      
+
       "# Install AWS CLI and unzip for file operations",
       "sudo apt-get install -y unzip",
 
@@ -194,7 +194,7 @@ build {
 
       "# Ensure all application files are owned by 'csye6225'",
       "sudo chown -R csye6225:csye6225 /opt/csye6225",
-      
+
       "# Set proper permissions (not 777)",
       "sudo chmod -R 755 /opt/csye6225",
 
