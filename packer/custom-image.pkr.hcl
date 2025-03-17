@@ -55,6 +55,27 @@ variable "PORT" {
   description = "Port for the application"
 }
 
+variable "MYSQL_DATABASE" {
+  description = "Name of the MySQL database"
+  type        = string
+}
+
+variable "MYSQL_ROOT_PASSWORD" {
+  description = "MySQL root password"
+  type        = string
+}
+
+variable "DB_USER" {
+  description = "Database user name"
+  type        = string
+}
+
+variable "DB_HOST" {
+  description = "Database host address"
+  type        = string
+}
+
+
 variable "DB_DIALECT" {
   type        = string
   description = "Database dialect (e.g., mysql, postgres)"
