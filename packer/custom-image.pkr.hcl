@@ -181,6 +181,10 @@ build {
       "sudo mkdir -p /etc/opt/csye6225",
       "sudo mkdir -p /etc/systemd/system/app.service.d/",
 
+      "# Create empty env.conf file to prevent systemd errors",
+      "sudo touch /etc/opt/csye6225/env.conf",
+      "sudo chmod 644 /etc/opt/csye6225/env.conf",
+
       "# Create systemd override to use the environment file",
       "sudo tee /etc/systemd/system/app.service.d/override.conf > /dev/null <<EOT",
       "[Service]",
