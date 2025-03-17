@@ -181,26 +181,11 @@ build {
       "sudo mkdir -p /etc/opt/csye6225",
       "sudo mkdir -p /etc/systemd/system/app.service.d/",
 
-      "# Create a placeholder environment file",
-      "sudo tee /etc/opt/csye6225/env.conf > /dev/null <<EOT",
-      "DB_HOST=placeholder",
-      "DB_USER=placeholder",
-      "DB_PASSWORD=placeholder",
-      "DB_NAME=placeholder",
-      "DB_PORT=placeholder",
-      "S3_BUCKET_NAME=placeholder",
-      "DB_DIALECT=mysql",
-      "PORT=${var.PORT}",
-      "EOT",
-
       "# Create systemd override to use the environment file",
       "sudo tee /etc/systemd/system/app.service.d/override.conf > /dev/null <<EOT",
       "[Service]",
       "EnvironmentFile=/etc/opt/csye6225/env.conf",
       "EOT",
-
-      "# Set proper permissions",
-      "sudo chmod 644 /etc/opt/csye6225/env.conf",
 
       "# Reload environment variables",
       ". /etc/environment",
@@ -258,3 +243,4 @@ build {
     strip_path = true
   }
 }
+
