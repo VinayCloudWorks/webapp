@@ -39,15 +39,16 @@ exports.uploadFile = async (req, res) => {
         // Create file record in database
         const file = await File.create({
             file_name: req.file.originalname,
-            s3_bucket_path: s3Key,
-            date_created: new Date()
+            url: s3Key,
+            upload_date: new Date()
         });
 
         res.status(201).json({
-            file_id: file.file_id,
+            "message": "File Added",
             file_name: file.file_name,
-            s3_bucket_path: file.s3_bucket_path,
-            date_created: file.date_created
+            id: file.id,
+            url: file.url,  
+            upload_date: file.upload_date
         });
     } catch (error) {
         console.error('Error uploading file:', error);
@@ -60,17 +61,14 @@ exports.getFile = async (req, res) => {
         const fileId = req.params.id;
 
         // Retrieve the file record from database
-        const file = await File.findOne({ where: { file_id: fileId } });
+        const file = await File.findOne({ where: { id: fileId } });
         if (!file) {
             return res.status(400).json({ error: 'Bad request: File not found' });
         }
 
         // Return file metadata, not the actual file
         res.status(200).json({
-            file_id: file.file_id,
-            file_name: file.file_name,
-            s3_bucket_path: file.s3_bucket_path,
-            date_created: file.date_created
+            url: file.url,
         });
     } catch (error) {
         console.error('Error getting file:', error);
@@ -83,7 +81,7 @@ exports.deleteFile = async (req, res) => {
         const fileId = req.params.id;
 
         // Retrieve the file record
-        const file = await File.findOne({ where: { file_id: fileId } });
+        const file = await File.findOne({ where: { id: fileId } });
         if (!file) {
             return res.status(400).json({ error: 'Bad request: File not found' });
         }
@@ -91,7 +89,7 @@ exports.deleteFile = async (req, res) => {
         // Delete from S3 bucket 
         const deleteParams = {
             Bucket: bucketName,
-            Key: file.s3_bucket_path
+            Key: file.url
         };
 
         // This will work both in production and test environment now
