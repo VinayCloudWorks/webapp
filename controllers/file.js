@@ -3,15 +3,25 @@ const { v4: uuidv4 } = require('uuid');
 const File = require('../models/file');
 const { s3, bucketName } = require('../utils');
 
+// Set security headers
+const setSecurityHeaders = (res) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('X-Content-Type-Options', 'nosniff');
+};
+
 //Handler for unsupported HTTP methods
 exports.methodNotAllowed = (req, res) => {
-    res.status(405).json({ error: 'Method Not Allowed' });
+    setSecurityHeaders(res);
+    res.status(405).send();
 };
 
 exports.uploadFile = async (req, res) => {
-    // Check for query params only - we need body for file upload
+    setSecurityHeaders(res);
+
+    // Check for query parameters
     if (req.query && Object.keys(req.query).length > 0) {
-        return res.status(400).json({ error: 'Bad Request' });
+        return res.status(400).send();
     }
 
     try {
@@ -57,12 +67,14 @@ exports.uploadFile = async (req, res) => {
 };
 
 exports.getFile = async (req, res) => {
-    // Check for body and query params - we need id param
+    setSecurityHeaders(res);
+
+    // Check for body and query params
     if (
         (req.body && Object.keys(req.body).length > 0) ||
         (req.query && Object.keys(req.query).length > 0)
     ) {
-        return res.status(400).json({ error: 'Bad Request' });
+        return res.status(400).send();
     }
 
     try {
@@ -83,12 +95,14 @@ exports.getFile = async (req, res) => {
 };
 
 exports.deleteFile = async (req, res) => {
-    // Check for body and query params - we need id param
+    setSecurityHeaders(res);
+
+    // Check for body and query params
     if (
         (req.body && Object.keys(req.body).length > 0) ||
         (req.query && Object.keys(req.query).length > 0)
     ) {
-        return res.status(400).json({ error: 'Bad Request' });
+        return res.status(400).send();
     }
 
     try {
