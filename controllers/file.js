@@ -86,7 +86,10 @@ exports.getFile = async (req, res) => {
         }
         // Return file metadata, not the actual file
         res.status(200).json({
+            file_name: file.file_name,
+            id: file.id,
             url: file.url,
+            upload_date: file.upload_date,
         });
     } catch (error) {
         console.error('Error getting file:', error);
