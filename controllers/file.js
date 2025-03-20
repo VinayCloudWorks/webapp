@@ -5,21 +5,24 @@ const { s3, bucketName } = require('../utils');
 
 //Handler for unsupported HTTP methods
 exports.methodNotAllowed = (req, res) => {
-    res.status(405).json({ error: 'Method Not Allowed' })
+    res.status(405).json({ error: 'Method Not Allowed' });
 };
 
 exports.uploadFile = async (req, res) => {
+    // Check for query params only - we need body for file upload
+    if (req.query && Object.keys(req.query).length > 0) {
+        return res.status(400).json({ error: 'Bad Request' });
+    }
+
     try {
         // Check if file was uploaded
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded' });
         }
-
         // Generate a unique file name for S3
         const fileExtension = req.file.originalname.split('.').pop();
         const fileName = `${uuidv4()}.${fileExtension}`;
         const s3Key = `files/${fileName}`;
-
         // Upload to S3 using IAM role authentication
         const uploadParams = {
             Bucket: bucketName,
@@ -32,22 +35,19 @@ exports.uploadFile = async (req, res) => {
                 'Upload-Date': new Date().toISOString()
             }
         };
-
         // This will work both in production and test environment now
         const s3Result = await s3.upload(uploadParams).promise();
-
         // Create file record in database
         const file = await File.create({
             file_name: req.file.originalname,
             url: s3Key,
             upload_date: new Date()
         });
-
         res.status(201).json({
             "message": "File Added",
             file_name: file.file_name,
             id: file.id,
-            url: file.url,  
+            url: file.url,
             upload_date: file.upload_date
         });
     } catch (error) {
@@ -57,15 +57,21 @@ exports.uploadFile = async (req, res) => {
 };
 
 exports.getFile = async (req, res) => {
+    // Check for body and query params - we need id param
+    if (
+        (req.body && Object.keys(req.body).length > 0) ||
+        (req.query && Object.keys(req.query).length > 0)
+    ) {
+        return res.status(400).json({ error: 'Bad Request' });
+    }
+
     try {
         const fileId = req.params.id;
-
         // Retrieve the file record from database
         const file = await File.findOne({ where: { id: fileId } });
         if (!file) {
             return res.status(400).json({ error: 'Bad request: File not found' });
         }
-
         // Return file metadata, not the actual file
         res.status(200).json({
             url: file.url,
@@ -77,27 +83,30 @@ exports.getFile = async (req, res) => {
 };
 
 exports.deleteFile = async (req, res) => {
+    // Check for body and query params - we need id param
+    if (
+        (req.body && Object.keys(req.body).length > 0) ||
+        (req.query && Object.keys(req.query).length > 0)
+    ) {
+        return res.status(400).json({ error: 'Bad Request' });
+    }
+
     try {
         const fileId = req.params.id;
-
         // Retrieve the file record
         const file = await File.findOne({ where: { id: fileId } });
         if (!file) {
             return res.status(400).json({ error: 'Bad request: File not found' });
         }
-
-        // Delete from S3 bucket 
+        // Delete from S3 bucket
         const deleteParams = {
             Bucket: bucketName,
             Key: file.url
         };
-
         // This will work both in production and test environment now
         await s3.deleteObject(deleteParams).promise();
-
         // Delete record from database
         await file.destroy();
-
         // No content response on successful deletion
         res.status(204).end();
     } catch (error) {
