@@ -1,0 +1,69 @@
+{
+  "agent": {
+    "metrics_collection_interval": 60,
+    "run_as_user": "root"
+  },
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/webapp/application.log",
+            "log_group_name": "webapp-logs",
+            "log_stream_name": "{instance_id}-application-log",
+            "retention_in_days": 7
+          },
+          {
+            "file_path": "/var/log/webapp/error.log",
+            "log_group_name": "webapp-logs",
+            "log_stream_name": "{instance_id}-error-log",
+            "retention_in_days": 7
+          },
+          {
+            "file_path": "/var/log/syslog",
+            "log_group_name": "webapp-system-logs",
+            "log_stream_name": "{instance_id}-syslog",
+            "retention_in_days": 7
+          }
+        ]
+      }
+    }
+  },
+  "metrics": {
+    "namespace": "WebApp",
+    "metrics_collected": {
+      "statsd": {
+        "service_address": ":8125",
+        "metrics_collection_interval": 10,
+        "metrics_aggregation_interval": 60
+      },
+      "cpu": {
+        "resources": [
+          "*"
+        ],
+        "measurement": [
+          "cpu_usage_idle",
+          "cpu_usage_user",
+          "cpu_usage_system"
+        ],
+        "totalcpu": true
+      },
+      "mem": {
+        "measurement": [
+          "mem_used_percent"
+        ]
+      },
+      "disk": {
+        "resources": [
+          "/"
+        ],
+        "measurement": [
+          "disk_used_percent"
+        ]
+      }
+    },
+    "append_dimensions": {
+      "InstanceId": "${aws:InstanceId}"
+    }
+  }
+}
