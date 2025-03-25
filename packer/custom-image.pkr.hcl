@@ -215,7 +215,7 @@ build {
       "# Install CloudWatch Agent",
       "wget https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb -O /tmp/amazon-cloudwatch-agent.deb",
       "sudo dpkg -i /tmp/amazon-cloudwatch-agent.deb",
-      
+
       "# Copy CloudWatch agent configuration file",
       "sudo cp /tmp/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json",
       "sudo chmod 644 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json",
@@ -244,7 +244,7 @@ build {
 
       "# Install additional packages for file upload functionality",
       "cd /opt/csye6225 && sudo npm install aws-sdk multer uuid",
-      
+
       "# Install StatsD client for metrics collection",
       "cd /opt/csye6225 && sudo npm install hot-shots winston",
 
