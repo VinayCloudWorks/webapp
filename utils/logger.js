@@ -1,10 +1,36 @@
 const winston = require('winston');
+const path = require('path');
+const fs = require('fs');
 
 // Define log format
 const logFormat = winston.format.combine(
     winston.format.timestamp(),
     winston.format.json()
 );
+
+// Determine log directory based on environment
+const getLogDirectory = () => {
+    // Use a different directory for tests to avoid permission issues
+    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'integration') {
+        const testLogDir = path.join(__dirname, '..', 'test-logs');
+
+        // Create test log directory if it doesn't exist
+        if (!fs.existsSync(testLogDir)) {
+            try {
+                fs.mkdirSync(testLogDir, { recursive: true });
+            } catch (err) {
+                console.error('Error creating test log directory', err);
+            }
+        }
+
+        return testLogDir;
+    }
+
+    // For production, use the standard directory
+    return '/var/log/webapp';
+};
+
+const logDirectory = getLogDirectory();
 
 // Create the logger instance
 const logger = winston.createLogger({
@@ -14,14 +40,14 @@ const logger = winston.createLogger({
     transports: [
         // Write all logs to the application.log file
         new winston.transports.File({
-            filename: '/var/log/webapp/application.log'
+            filename: path.join(logDirectory, 'application.log')
         }),
         // Write error logs to error.log file
         new winston.transports.File({
             level: 'error',
-            filename: '/var/log/webapp/error.log'
+            filename: path.join(logDirectory, 'error.log')
         }),
-        // Console output for development
+        // Console output for development and testing
         new winston.transports.Console({
             format: winston.format.combine(
                 winston.format.colorize(),
