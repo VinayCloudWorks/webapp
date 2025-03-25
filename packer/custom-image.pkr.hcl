@@ -171,6 +171,12 @@ build {
     destination = "/tmp/app.service"
   }
 
+  # CloudWatch agent configuration file
+  provisioner "file" {
+    source      = "./config/amazon-cloudwatch-agent.json"
+    destination = "/tmp/amazon-cloudwatch-agent.json"
+  }
+
   provisioner "shell" {
     inline = [
       "# Add environment variables to /etc/environment",
@@ -180,6 +186,7 @@ build {
       "# Create directories for environment configuration",
       "sudo mkdir -p /etc/opt/csye6225",
       "sudo mkdir -p /etc/systemd/system/app.service.d/",
+      "sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/etc",
 
       "# Create empty env.conf file to prevent systemd errors",
       "sudo touch /etc/opt/csye6225/env.conf",
@@ -205,6 +212,17 @@ build {
       "# Install AWS CLI and unzip for file operations",
       "sudo apt-get install -y unzip",
 
+      "# Install CloudWatch Agent",
+      "wget https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb -O /tmp/amazon-cloudwatch-agent.deb",
+      "sudo dpkg -i /tmp/amazon-cloudwatch-agent.deb",
+      
+      "# Copy CloudWatch agent configuration file",
+      "sudo cp /tmp/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json",
+      "sudo chmod 644 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json",
+
+      "# Configure CloudWatch agent to start at boot",
+      "sudo systemctl enable amazon-cloudwatch-agent.service",
+
       "# Create dedicated non-login user 'csye6225'",
       "sudo groupadd csye6225 || true",
       "sudo useradd -g csye6225 -s /usr/sbin/nologin csye6225 || true",
@@ -226,12 +244,20 @@ build {
 
       "# Install additional packages for file upload functionality",
       "cd /opt/csye6225 && sudo npm install aws-sdk multer uuid",
+      
+      "# Install StatsD client for metrics collection",
+      "cd /opt/csye6225 && sudo npm install hot-shots winston",
 
       "# Ensure all application files are owned by 'csye6225'",
       "sudo chown -R csye6225:csye6225 /opt/csye6225",
 
       "# Set proper permissions (not 777)",
       "sudo chmod -R 755 /opt/csye6225",
+
+      "# Create logs directory with proper permissions",
+      "sudo mkdir -p /var/log/webapp",
+      "sudo chown csye6225:csye6225 /var/log/webapp",
+      "sudo chmod 755 /var/log/webapp",
 
       "# Copy the systemd service file from /tmp to /etc/systemd/system",
       "sudo cp /tmp/app.service /etc/systemd/system/app.service",
@@ -247,4 +273,3 @@ build {
     strip_path = true
   }
 }
-
