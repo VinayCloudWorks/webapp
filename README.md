@@ -93,3 +93,4 @@ sudo systemctl status app.service
 sudo journalctl -u app.service
 sudo systemctl status amazon-cloudwatch-agent
 sudo cat /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+Test
