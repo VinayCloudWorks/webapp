@@ -119,6 +119,10 @@ source "amazon-ebs" "ubuntu" {
 ####################
 # Build Block & Provisioners
 ####################
+build {
+  sources = [
+    "source.amazon-ebs.ubuntu"
+  ]
   # File provisioners to copy the generated artifacts from the workspace
   provisioner "file" {
     source      = "./artifacts/app_artifact.zip"
@@ -236,3 +240,4 @@ source "amazon-ebs" "ubuntu" {
     output     = "manifest.json"
     strip_path = true
   }
+}
