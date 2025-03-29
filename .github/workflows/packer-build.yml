@@ -89,27 +89,7 @@ jobs:
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
            unzip -o awscliv2.zip
            sudo ./aws/install --update
-
-      - name: Install GCP CLI SDK
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          version: "latest"
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-
-      - name: "Debug: List Files"
-        run: ls -R
-
-      - name: Configure GCP Credentials
-        run: |
-          cat << 'EOF' > /tmp/gcloud.json
-          ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-          EOF
-          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcloud.json" >> $GITHUB_ENV
-
-      - name: Show First Few Lines of JSON
-        run: head -n 5 /tmp/gcloud.json
-
+           
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
         with:
@@ -131,8 +111,6 @@ jobs:
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_DEFAULT_SUBNET_ID: ${{ secrets.AWS_DEFAULT_SUBNET_ID }}
-          GCP_ZONE: ${{ secrets.GCP_ZONE }}
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           AWS_DEMO_ACCOUNT_ID: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
@@ -144,8 +122,6 @@ jobs:
           packer validate \
             -var "aws_region=${AWS_REGION}" \
             -var "aws_default_subnet_id=${AWS_DEFAULT_SUBNET_ID}" \
-            -var "gcp_zone=${GCP_ZONE}" \
-            -var "gcp_project_id=${GCP_PROJECT_ID}" \
             -var "AWS_DEMO_ACCOUNT_ID=${AWS_DEMO_ACCOUNT_ID}" \
             -var "MYSQL_DATABASE=${MYSQL_DATABASE}" \
             -var "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" \
@@ -159,7 +135,6 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
           AWS_DEMO_ACCOUNT_ID: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
@@ -170,8 +145,6 @@ jobs:
           packer build \
             -var "aws_region=${{ secrets.AWS_REGION }}" \
             -var "aws_default_subnet_id=${{ secrets.AWS_DEFAULT_SUBNET_ID }}" \
-            -var "gcp_zone=${{ secrets.GCP_ZONE }}" \
-            -var "gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var "AWS_DEMO_ACCOUNT_ID=${{ secrets.AWS_DEMO_ACCOUNT_ID }}" \
             -var "MYSQL_DATABASE=${MYSQL_DATABASE}" \
             -var "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" \
@@ -206,43 +179,3 @@ jobs:
           echo "Sharing AMI with Demo Account..."
           aws ec2 modify-image-attribute --region $AWS_REGION --image-id "$AMI_ID" \
             --launch-permission "Add=[{UserId=${AWS_DEMO_ACCOUNT_ID}}]"
-
-      - name: Authenticate GCP
-        env:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-        run: |
-          gcloud auth activate-service-account --key-file /tmp/gcloud.json --project $GCP_PROJECT_ID
-
-      - name: Retrieve Latest GCP Machine Image and Share with Demo Account
-        env:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-          GCP_DEMO_MEMBER: ${{ secrets.GCP_DEMO_MEMBER }}
-        run: |
-          echo "Retrieving latest GCP machine image..."
-          IMAGE_NAME=$(gcloud compute images list \
-            --project $GCP_PROJECT_ID \
-            --filter="name~'^custom-nodejs-app-'" \
-            --sort-by=~creationTimestamp \
-            --limit=1 \
-            --format="value(name)")
-
-          echo "Latest GCP Image Name: $IMAGE_NAME"
-          if [ -z "$IMAGE_NAME" ]; then
-            echo "No GCP machine image found matching custom-nodejs-app-*"
-            exit 1
-          fi
-
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-
-      - name: Copy GCP Image to Demo Project (Create Alias)
-        env:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-          GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
-        run: |
-          echo "Copying image from DEV project ($GCP_PROJECT_ID) to DEMO project ($GCP_DEMO_PROJECT_ID)..."
-          gcloud compute images create "my-demo-image-$(date +%s)" \
-            --source-image=projects/${GCP_PROJECT_ID}/global/images/${IMAGE_NAME} \
-            --source-image-project=${GCP_PROJECT_ID} \
-            --project=${GCP_DEMO_PROJECT_ID} \
-            --family=custom-nodejs-app \
-            --description="Copied image from DEV"
