@@ -4,10 +4,6 @@ packer {
       version = ">= 1.0.0"
       source  = "github.com/hashicorp/amazon"
     }
-    googlecompute = {
-      version = ">= 1.0.0"
-      source  = "github.com/hashicorp/googlecompute"
-    }
   }
 }
 
@@ -92,17 +88,6 @@ variable "AWS_DEMO_ACCOUNT_ID" {
   type        = string
 }
 
-variable "gcp_project_id" {
-  description = "GCP project ID for building the custom image"
-  type        = string
-}
-
-variable "gcp_zone" {
-  description = "GCP zone where the custom image will be built"
-  type        = string
-  default     = "us-central1-a"
-}
-
 ####################
 # Local Values
 ####################
@@ -129,21 +114,6 @@ source "amazon-ebs" "ubuntu" {
     Name        = var.ami_name
     Environment = "Dev"
   }
-}
-
-####################
-# GCP Builder
-####################
-source "googlecompute" "ubuntu" {
-  project_id            = var.gcp_project_id
-  zone                  = var.gcp_zone
-  machine_type          = "e2-medium"
-  source_image          = "ubuntu-2404-noble-amd64-v20250214"
-  image_name            = "custom-nodejs-app-{{timestamp}}"
-  ssh_username          = "ubuntu"
-  service_account_email = "github-actions-packer@dev-gcp-project-451816.iam.gserviceaccount.com"
-  disk_size             = 10
-  disk_type             = "pd-standard"
 }
 
 ####################
