@@ -78,7 +78,7 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          DB_HOST: 127.0.0.1
+          DB_HOST: "DB_HOST_PLACEHOLDER"
           ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
@@ -179,3 +179,114 @@ jobs:
           echo "Sharing AMI with Demo Account..."
           aws ec2 modify-image-attribute --region $AWS_REGION --image-id "$AMI_ID" \
             --launch-permission "Add=[{UserId=${AWS_DEMO_ACCOUNT_ID}}]"
+
+          # Store AMI ID for later use
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+
+      - name: Configure AWS CLI for DEMO Account
+        env:
+          AWS_DEMO_ACCESS_KEY_ID: ${{ secrets.AWS_DEMO_ACCESS_KEY_ID }}
+          AWS_DEMO_SECRET_ACCESS_KEY: ${{ secrets.AWS_DEMO_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          # Configure AWS CLI with DEMO account credentials
+          aws configure set aws_access_key_id $AWS_DEMO_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_DEMO_SECRET_ACCESS_KEY
+          aws configure set region $AWS_REGION
+          
+          # Verify the configuration
+          echo "Verifying AWS CLI configuration for DEMO account..."
+          aws sts get-caller-identity
+          
+      - name: Wait for AMI to be available in DEMO account
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          echo "Waiting for AMI to be available in DEMO account..."
+          attempts=0
+          max_attempts=30
+          
+          while [ $attempts -lt $max_attempts ]; do
+            attempts=$((attempts+1))
+            echo "Attempt $attempts of $max_attempts..."
+            
+            DEMO_AMI_STATUS=$(aws ec2 describe-images --region $AWS_REGION --image-ids $AMI_ID --query 'Images[0].State' --output text || echo "unavailable")
+            
+            if [ "$DEMO_AMI_STATUS" = "available" ]; then
+              echo "AMI is now available in DEMO account!"
+              break
+            fi
+            
+            if [ $attempts -eq $max_attempts ]; then
+              echo "Timed out waiting for AMI to be available in DEMO account."
+              exit 11
+            fi
+            
+            echo "AMI status: $DEMO_AMI_STATUS. Waiting 10 seconds..."
+            sleep 10
+          done
+
+      - name: Update Launch Template and Refresh Instances
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          # Get the current launch template version
+          LAUNCH_TEMPLATE_VERSION=$(aws ec2 describe-launch-templates \
+            --launch-template-names csye6225_asg \
+            --query 'LaunchTemplates[0].LatestVersionNumber' \
+            --output text)
+            
+          echo "Current Launch Template Version: $LAUNCH_TEMPLATE_VERSION"
+          
+          # Create a new launch template version with the new AMI
+          NEW_VERSION=$(aws ec2 create-launch-template-version \
+            --launch-template-name csye6225_asg \
+            --source-version $LAUNCH_TEMPLATE_VERSION \
+            --launch-template-data "{\"ImageId\":\"$AMI_ID\"}" \
+            --query 'LaunchTemplateVersion.VersionNumber' \
+            --output text)
+            
+          echo "Created new Launch Template version: $NEW_VERSION"
+          
+          # Start an instance refresh
+          REFRESH_ID=$(aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name webapp-asg \
+            --preferences "{\"MinHealthyPercentage\": 50, \"InstanceWarmup\": 300}" \
+            --query 'InstanceRefreshId' \
+            --output text)
+            
+          echo "Started instance refresh with ID: $REFRESH_ID"
+          
+          # Monitor the instance refresh until completion
+          echo "Monitoring instance refresh status..."
+          while true; do
+            STATUS=$(aws autoscaling describe-instance-refreshes \
+              --auto-scaling-group-name webapp-asg \
+              --instance-refresh-ids $REFRESH_ID \
+              --query 'InstanceRefreshes[0].Status' \
+              --output text)
+              
+            PERCENTAGE=$(aws autoscaling describe-instance-refreshes \
+              --auto-scaling-group-name webapp-asg \
+              --instance-refresh-ids $REFRESH_ID \
+              --query 'InstanceRefreshes[0].PercentageComplete' \
+              --output text)
+              
+            echo "Refresh status: $STATUS, Percentage complete: $PERCENTAGE%"
+            
+            if [ "$STATUS" = "Successful" ]; then
+              echo "Instance refresh completed successfully!"
+              break
+            elif [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Cancelled" ]; then
+              REASON=$(aws autoscaling describe-instance-refreshes \
+                --auto-scaling-group-name webapp-asg \
+                --instance-refresh-ids $REFRESH_ID \
+                --query 'InstanceRefreshes[0].StatusReason' \
+                --output text)
+              echo "Instance refresh failed with reason: $REASON"
+              exit 12
+            fi
+            
+            echo "Waiting 30 seconds for refresh to progress..."
+            sleep 30
+          done  
