@@ -69,6 +69,7 @@ variable "DB_USER" {
 variable "DB_HOST" {
   description = "Database host address"
   type        = string
+  default     = ""
 }
 
 
