@@ -78,7 +78,7 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          DB_HOST: "DB_HOST_PLACEHOLDER"
+          DB_HOST: "process.env.DB_HOST"
           ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
