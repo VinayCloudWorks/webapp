@@ -78,7 +78,6 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          DB_HOST: "process.env.DB_HOST"
           ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_DIALECT: ${{ secrets.DB_DIALECT }}
@@ -128,7 +127,6 @@ jobs:
             -var "DB_USER=${DB_USER}" \
             -var "PORT=${PORT}" \
             -var "DB_DIALECT=${DB_DIALECT}" \
-            -var "DB_HOST=placeholder-db.amazonaws.com" \
             ./packer/custom-image.pkr.hcl
 
       - name: Run Packer Build
@@ -151,7 +149,6 @@ jobs:
             -var "DB_USER=${DB_USER}" \
             -var "PORT=${PORT}" \
             -var "DB_DIALECT=${DB_DIALECT}" \
-            -var "DB_HOST=placeholder-db.amazonaws.com" \
             ./packer/custom-image.pkr.hcl
 
       - name: Retrieve Latest AMI ID and Share with Demo Account
