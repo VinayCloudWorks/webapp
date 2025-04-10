@@ -1,4 +1,5 @@
 // server.js
+require('dotenv').config();
 const express = require('express');
 const { sequelize } = require('./utils');
 const healthzRoute = require('./routes/healthz');
