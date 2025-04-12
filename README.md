@@ -1,6 +1,6 @@
-- This repository demonstrates how to build custom machine images for a Node.js web application using Packer on both AWS and GCP. The images include all necessary dependencies—such as MySQL, Node.js, and systemd service configurations—so that the application can run seamlessly once deployed.
+- This repository demonstrates how to build custom machine images for a Node.js web application using Packer on both AWS. The images include all necessary dependencies—such as MySQL, Node.js, and systemd service configurations—so that the application can run seamlessly once deployed.
 - Uses Ubuntu 24.04 LTS as the source image (verify that ami-09b4f17f4df57bbf2 is Ubuntu 24.04 LTS).
-- Builds images in both AWS and GCP in parallel.
+- Builds images in both AWS.
 - Configures images with a local MySQL installation and application dependencies.
 
 **Continuous Integration**
@@ -85,11 +85,12 @@ CopyEdit
 `./<script_filename>.sh`
 
 
+*Debug Commands*
 
-sudo apt install -y mysql-client
-mysql --version
-mysql -h YOUR_RDS_ENDPOINT -u YOUR_DB_USER -p
-sudo systemctl status app.service
-sudo journalctl -u app.service
-sudo systemctl status amazon-cloudwatch-agent
-sudo cat /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+`sudo apt install -y mysql-client`
+`mysql --version`
+`mysql -h YOUR_RDS_ENDPOINT -u YOUR_DB_USER -p`
+`sudo systemctl status app.service`
+`sudo journalctl -u app.service`
+`sudo systemctl status amazon-cloudwatch-agent`
+`sudo cat /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json`
